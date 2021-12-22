@@ -3,6 +3,9 @@
 #include <ctime>
 #include <cstring>
 #include <utility>
+#include <python3.8/Python.h>
+//#include "python3.8/Python.h"
+//#include <Python.h>
 
 int kbhit()
 {
@@ -106,7 +109,7 @@ void game_menu::initial_menu()
                         print_initail_menu();
                     }
                     else if(choice==1)
-                    return;
+                    github();
                     else if(choice==2)
                     return;
                 }
@@ -454,3 +457,49 @@ void game_menu::print_game_setting_menu()
     move(0,0);
 }
 
+void game_menu::github()
+{
+
+    Py_Initialize();
+    
+    int res;
+    PyObject *pModule=NULL;
+    PyObject *pFunc=NULL;
+    PyObject *pArgs=NULL;
+    PyObject *pResult=NULL;
+
+
+    if( !Py_IsInitialized()){
+		mvprintw(0,0,"Error");
+		return;
+	}
+    /*
+    if(!(pModule=PyImport_Import(PyUnicode_FromString("mygithub"))))
+    {
+        mvprintw(1,0,"Error");
+        return;
+    }
+    
+    if(!(pFunc=PyObject_GetAttrString(pModule, "mygithub")))
+    {
+        mvprintw(2,0,"Error");
+        return;
+    }
+
+    pResult=PyObject_CallObject(pFunc, pArgs);
+    if(pArgs)
+    Py_DECREF(pArgs);
+    if(pFunc)
+    Py_DECREF(pFunc);
+    */
+    
+    PyRun_SimpleString("import webbrowser");
+    PyRun_SimpleString("webbrowser.open('https://github.com/Yui-Arthur/Snake-Game', new=2)");    
+    
+
+    Py_Finalize();
+    
+
+
+
+}

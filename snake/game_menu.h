@@ -15,6 +15,7 @@ class game_menu{
     void print_game_setting_menu();
     void game_change_setting(int,int);
     void into_game(int,int,int,int,int,int);
+    void github();
 
     private:
     snake_map *ptr;
