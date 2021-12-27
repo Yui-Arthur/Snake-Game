@@ -378,8 +378,15 @@ void special_computer_snake::eat_point()
     switch (eat_food_type-6)
     {
         case 1:
-            invincible=10;
+            invincible+=20;
             eat_food_type=0;
+
+
+            if(body_element!="⭐")
+            tmp_element=body_element;
+
+            change_body_element("⭐");
+            map_ptr->print_snake();
             break;
         case 2:
             eat_food_type=30;
@@ -389,7 +396,7 @@ void special_computer_snake::eat_point()
             random_new_pos();
             break;
         case 5:
-            transparent=10;
+            transparent+=10;
             eat_food_type=0;
             break;
         default:
@@ -470,8 +477,7 @@ bool special_computer_snake::move_body()
                         {1,0},
                         {0,-1}};
     
-    if(invincible!=0)
-    invincible--;
+    
 
     if(transparent!=0)
     transparent--;
@@ -540,6 +546,14 @@ bool special_computer_snake::move_body()
         else
         mvprintw(map_ptr->middle.first+head->position.first,map_ptr->middle.second+60+2*head->position.second,"  ");
         attroff(COLOR_PAIR(2));
+    }
+
+    if(invincible!=0)
+    {
+        invincible--;
+        if(invincible==0)
+        body_element=tmp_element,map_ptr->print_snake();
+        
     }
 
     return 1;

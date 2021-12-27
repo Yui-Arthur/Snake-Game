@@ -163,6 +163,9 @@ void snake_map::print_snake()
 
     while(current!=nullptr)
     {
+        if(Map[current->position.first][current->position.second]==0)
+        break;
+
         if((current->position.first+current->position.second)%2)
         {
             attron(COLOR_PAIR(1));
@@ -178,6 +181,8 @@ void snake_map::print_snake()
 
         current=current->next;
 
+        
+
     }
 
     if(player2==nullptr)
@@ -187,6 +192,9 @@ void snake_map::print_snake()
 
     while(current!=nullptr)
     {
+        if(Map[current->position.first][current->position.second]==0)
+        break;
+        
         if((current->position.first+current->position.second)%2)
         {
             attron(COLOR_PAIR(1));
@@ -755,8 +763,8 @@ void special_food_map::random_food(){
     else
     attron(COLOR_PAIR(2));
 
-    int special_food=rand()%11;
-    //int special_food=5;
+    //int special_food=rand()%11;
+    int special_food=1;
 
     switch(special_food)
     {
@@ -880,7 +888,10 @@ bool special_food_map::player_move_body()
     {
         bool result=player1->move_body();
         if(result==0)
-        mvprintw(height/2,50+width,"You lose !");
+        game_over(4);
+
+
+        show_length();
         return result;
     }
     else
@@ -888,12 +899,13 @@ bool special_food_map::player_move_body()
         bool result1=player1->move_body(),result2=player2->move_body();
 
         if(player1->get_head_pos()==player2->get_head_pos())
-        mvprintw(height/2,50+width,"Tie");
+        game_over(0);
         else if(result1==0)
-        mvprintw(height/2,50+width,"Player 2 Win !");
-        else if(result2==0)
-        mvprintw(height/2,50+width,"Player 1 Win !");
+        game_over(2);
+        else if(result2==0)   
+        game_over(1);
 
+        show_length();
         return  result1&&result2 ;
     }
 }
@@ -955,7 +967,18 @@ void barrier_map::random_food()
     }
 
     Map[x][y]=5;
-    mvprintw(middle.first+x,middle.second+60+y*2,"🍐");
+    if((x+y)%2)
+    {
+        attron(COLOR_PAIR(1));
+        mvprintw(middle.first+x,middle.second+60+y*2,"🍐");
+        attroff(COLOR_PAIR(1));
+    }
+    else
+    {
+        attron(COLOR_PAIR(2));
+        mvprintw(middle.first+x,middle.second+60+y*2,"🍐");
+        attroff(COLOR_PAIR(2));
+    }
     refresh();
 
     if(player1->get_length()==3&&(player2==nullptr||player2->get_length()==3))
@@ -972,8 +995,13 @@ void barrier_map::random_food()
     }
 
     Map[x][y]=1;
+    attron(COLOR_PAIR(4));
     mvprintw(middle.first+x,middle.second+60+y*2,"▓▓");
+    attroff(COLOR_PAIR(4));
+    
     refresh();
+
+    
     
 
     return;

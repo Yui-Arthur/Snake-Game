@@ -50,6 +50,7 @@ class snake{
         int direction;
         snake_map *map_ptr;
         char * body_element;
+        
     
 };
 
@@ -77,8 +78,9 @@ class special_player_snake:public player_snake{
         bool move_body();
 
     private:
-    int invincible=0;
-    int transparent=0;
+        int invincible=0;
+        int transparent=0;
+        char * tmp_element;
         
 };
 
@@ -113,8 +115,9 @@ class special_computer_snake:public computer_snake{
         bool move_body();
 
     private:
-    int invincible=0;
-    int transparent=0;
+        int invincible=0;
+        int transparent=0;
+        char * tmp_element;
 
 };
 
