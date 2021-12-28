@@ -763,8 +763,8 @@ void special_food_map::random_food(){
     else
     attron(COLOR_PAIR(2));
 
-    //int special_food=rand()%11;
-    int special_food=1;
+    int special_food=rand()%11;
+    //int special_food=1;
 
     switch(special_food)
     {
