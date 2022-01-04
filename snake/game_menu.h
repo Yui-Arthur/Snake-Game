@@ -8,17 +8,20 @@ class snake_map;
 class game_menu{
 
     public:
-    game_menu(){};
-    void initial_menu();
-    void print_initail_menu();
-    void game_setting();
-    void print_game_setting_menu();
-    void game_change_setting(int,int);
-    void into_game(int,int,int,int,int,int);
-    void github();
-
-    private:
-    snake_map *ptr;
+        game_menu(){initial_menu();};
+        void initial_menu();
+        void print_initail_menu();
+        void game_setting();
+        void print_game_setting_menu();
+        void game_change_setting(int,int);
+        void into_game(int,int,int,int,int,int);
+        void github();
+        char* get_local_ipAddr();
+        void server_connection();
+        void client_connection();
+        void connect_play();
+        int socket_connect(std::vector<char>);
+    
 
 };
 

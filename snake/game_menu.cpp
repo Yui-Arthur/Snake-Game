@@ -4,6 +4,24 @@
 #include <cstring>
 #include <utility>
 #include <python3.8/Python.h>
+#include <errno.h>      ///< errno
+#include <sys/socket.h> ///< socket
+#include <netinet/in.h> ///< sockaddr_in
+#include <arpa/inet.h>  ///< getsockname
+#include <unistd.h>     ///< close
+#include <iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <vector>
+#include <ncurses.h>
+#include <thread>
+#include <future>
+
+
 //#include "python3.8/Python.h"
 //#include <Python.h>
 
@@ -71,7 +89,7 @@ void game_menu::initial_menu()
                     choice--;
 
                     if(choice<0)
-                    choice=2;
+                    choice=3;
                         
                     
                     a=b=clock();
@@ -85,7 +103,7 @@ void game_menu::initial_menu()
                     mvprintw(20+5*choice,100," ");
                     choice++;
 
-                    if(choice>2)
+                    if(choice>3)
                     choice=0;
                         
                     
@@ -109,8 +127,15 @@ void game_menu::initial_menu()
                         print_initail_menu();
                     }
                     else if(choice==1)
-                    github();
+                    {
+                        connect_play();
+                        print_initail_menu();
+                        choice=0;
+                    }
+                    //get_local_ipAddr();
                     else if(choice==2)
+                    github();
+                    else if(choice==3)
                     return;
                 }
 
@@ -387,6 +412,7 @@ void game_menu::game_change_setting(int choice,int setting)
 
 void game_menu::into_game(int map,int player1,int player2,int food_num,int speed,int map_size)
 {
+    snake_map *ptr;
     speed=50000+20000*(2-speed);
     std::pair<int,int> size(20+10*map_size,20+10*map_size);
 
@@ -399,6 +425,7 @@ void game_menu::into_game(int map,int player1,int player2,int food_num,int speed
     else
     ptr=new special_food_map(player1,player2,1+2*food_num,speed,size);
 
+    ptr->down_counter();
     ptr->game_time();
 
     
@@ -426,8 +453,9 @@ void game_menu::print_initail_menu()
     
 
     mvprintw(20,105,"Play");
-    mvprintw(25,105,"See Github");
-    mvprintw(30,105,"Exit");
+    mvprintw(25,105,"Play Online");
+    mvprintw(30,105,"See Github");
+    mvprintw(35,105,"Exit");
 
     mvprintw(20,100,"►");
     move(0,0);
@@ -501,5 +529,235 @@ void game_menu::github()
     
 
 
+
+}
+
+
+char* game_menu::get_local_ipAddr()
+{
+
+    const char* google_dns_server = "8.8.8.8";
+    int dns_port = 53;
+
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+    if(sock < 0)
+    {
+        mvprintw(20,95,"Socket error");
+        return "";
+    }
+    
+
+    struct sockaddr_in serv;
+    memset(&serv, 0, sizeof(serv));
+    serv.sin_family = AF_INET;
+    serv.sin_addr.s_addr = inet_addr(google_dns_server);
+    serv.sin_port = htons(dns_port);
+
+    int err = connect(sock, (const struct sockaddr*)&serv, sizeof(serv));
+    if (err < 0)
+    {
+        mvprintw(20,95,"Error number: %s. Error message:%s",errno,strerror(errno));
+        return "";
+    }
+
+    struct sockaddr_in name;
+    socklen_t namelen = sizeof(name);
+    err = getsockname(sock, (struct sockaddr*)&name, &namelen);
+    char buffer[100];
+    const char* p=inet_ntop(AF_INET, &name.sin_addr, buffer, 80);
+
+    if(p != nullptr)
+    {
+        //┌─┐
+        //│ │
+        //└─┘
+        mvprintw(17,105,"Your IP");
+        mvprintw(18,99,"┌──────────────────┐");
+        mvprintw(19,99,"│                  │");
+        mvprintw(20,99,"└──────────────────┘");
+        mvprintw(19,102,"%s",buffer);
+
+        return buffer;
+    } 
+    else
+    {
+        mvprintw(20,95,"Error number: %s. Error message: %s",errno,strerror(errno));
+        return "";
+    }
+    
+
+
+
+
+
+}
+
+
+void game_menu::connect_play()
+{
+
+    mvprintw(20,100,"                  ");
+    mvprintw(25,100,"                  ");
+    mvprintw(30,100,"                  ");
+    mvprintw(35,100,"                  ");
+    
+    get_local_ipAddr();
+
+    mvprintw(22,98,"Connect with Your Friends");
+    mvprintw(23,99,"┌──────────────────┐");
+    mvprintw(24,99,"│                  │");
+    mvprintw(25,99,"└──────────────────┘");
+    
+    mvprintw(27,100,"►");
+    mvprintw(27,105,"Connect");
+    mvprintw(32,105,"Exit");
+    move(0,0);
+    int choice=0;
+    int state=0;
+
+
+    clock_t a,b;
+
+    a=b=clock();
+    int rel;
+    int num=0;
+    std::vector<char> input_addr;
+
+    while(1)
+    {
+        if(kbhit())
+        {
+            //printw("%d",getch());
+            switch (rel=getch())
+            {
+                case KEY_UP:
+
+                    mvprintw(27+5*choice,100," ");
+                    choice--;
+
+                    if(choice<0)
+                    choice=1;
+                        
+                    
+                    a=b=clock();
+                    state=0;
+                    mvprintw(27+5*choice,100,"►");
+                    move(0,0);
+                    refresh();
+                    break;
+
+                case KEY_DOWN:
+                    mvprintw(27+5*choice,100," ");
+                    choice++;
+
+                    if(choice>1)
+                    choice=0;
+                        
+                    
+                    a=b=clock();
+                    state=0;
+                    mvprintw(27+5*choice,100,"►");
+                    move(0,0);
+                    refresh();
+                    
+                    break;
+
+                case 27:
+                    return;
+
+
+                case 10:
+                    if(choice==0)
+                    {
+                        if(input_addr.empty())
+                        break;
+
+                        int sock=socket_connect(input_addr);
+                        if(sock!=-1)
+                        mvprintw(0,0,"success!");
+                        break;
+
+                    }
+                    else if(choice==1)
+                    return;
+                
+                case KEY_BACKSPACE:
+
+                    if(!input_addr.empty())
+                    {
+                        num--,input_addr.pop_back();
+                        mvprintw(24,102+num," ");
+                        move(0,0);
+                    }
+                    break;
+                
+                default:
+                    if((rel==46||rel>=48&&rel<=57)&&input_addr.size()<=15)
+                    {
+                        mvprintw(24,102+num,"%c",char(rel));
+                        num++;
+                        input_addr.push_back(char(rel));
+                        move(0,0);
+                    }
+                    
+                    
+
+
+
+            }
+
+            
+
+
+        }
+
+        b=clock();
+
+        if(b-a>500000)
+        {
+            if(state)
+            mvprintw(27+5*choice,100,"►");
+            else
+            mvprintw(27+5*choice,100," ");
+
+            move(0,0);
+            refresh();
+            state=!state;
+            a=b=clock();
+        }
+
+    
+    }
+
+}
+
+int game_menu::socket_connect(std::vector<char> input_addr)
+{
+    
+    int sock=socket(AF_INET,SOCK_STREAM,0);
+
+    if(sock<0)
+    {
+        mvprintw(24,102,"Socket Error");
+        return -1;
+    }
+
+    struct sockaddr_in addr;
+    memset(&addr,0,sizeof(addr));
+    addr.sin_family=AF_INET;
+    addr.sin_port=htons(1102);
+    addr.sin_addr.s_addr=inet_addr(&input_addr[0]);
+
+    int r=connect(sock,(struct sockaddr*)&addr,sizeof(addr));
+    //"61.227.224.135"
+    if(r==-1)
+    {
+        perror("fail");
+        return -1;
+    }
+
+    //mvprintw(0,0,"!");
+    return r;
 
 }

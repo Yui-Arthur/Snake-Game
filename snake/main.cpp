@@ -21,8 +21,8 @@ int main()
     nodelay(stdscr, TRUE);
     keypad(stdscr,TRUE);
     
-    game_menu game;
-    game.initial_menu();
+    new game_menu;
+    //initial_menu();
     /*
     double x=3.92;
     start_color();

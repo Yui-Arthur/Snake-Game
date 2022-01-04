@@ -292,7 +292,7 @@ int unwall_computer_snake::direction_score(pair<int,int>closest_point,int dis)
 
 
         if(tmp_x+tmp_y<dis&&total_score>length)
-        total_score+=2;
+        total_score+=2; 
         if(total_score>length)
         total_score+=3;
 

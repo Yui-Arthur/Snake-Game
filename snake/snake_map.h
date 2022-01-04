@@ -27,6 +27,7 @@ class snake_map{
         void print_snake();
         snake* get_player(int);
         std::pair<int,int> middle;
+        void down_counter();
      
         
 
@@ -40,13 +41,23 @@ class snake_map{
         
 };
 
-
+class connection_map:public snake_map{
+    public:
+        connection_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        void player_control();
+};
 
 class unwall_map:public snake_map{
     public:
         unwall_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
         void print();
 
+};
+
+class connection_unwall_map:public unwall_map{
+    public:
+        connection_unwall_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        void player_control();
 };
 
 class special_food_map:public snake_map{
@@ -64,10 +75,22 @@ class special_food_map:public snake_map{
 
 };
 
+class connection_special_map:public unwall_map{
+    public:
+        connection_special_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        void player_control();
+};
+
 class barrier_map:public snake_map{
     public:
         barrier_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
         void random_food();
+};
+
+class connection_barrier_map:public unwall_map{
+    public:
+        connection_barrier_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        void player_control();
 };
 
 #endif
