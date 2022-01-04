@@ -1,0 +1,178 @@
+        /*
+        int score_0=1,score_1=1,score_2=0,score_3=0;
+        for(int i=tmp.first+1;i<=map_ptr->get_height();i++)
+        {
+            next_point=map_ptr->get_point(i,tmp.second);
+            if(next_point!=0&&next_point!=5)
+            break;
+
+            score_0++;
+        }
+        for(int i=tmp.first-1;i>=0;i--)
+        {
+            next_point=map_ptr->get_point(i,tmp.second);
+            if(next_point!=0&&next_point!=5)
+            break;
+
+            score_1++;
+        }
+        for(int i=tmp.second+1;i<=map_ptr->get_width();i++)
+        {
+            next_point=map_ptr->get_point(tmp.first,i);
+            if(next_point!=0&&next_point!=5)
+            break;
+
+            score_2++;
+        }
+        for(int i=tmp.second-1;i>=0;i--)
+        {
+            next_point=map_ptr->get_point(tmp.first,i);
+            if(next_point!=0&&next_point!=5)
+            break;
+
+            score_3++;
+        }
+
+        int total_score=(score_0+score_1+1)*(score_2+score_3+1);
+        if((score_0+score_1+1)*(score_2+score_3+1)<length)
+        total_score=0;
+        */
+
+       /*
+    //up
+    if(closest_point.first<head->position.first)
+    {
+        pair<int,int> tmp=head->position;
+        tmp.first+=move_xy[0][0];
+        tmp.second+=move_xy[0][1];
+        int next_point=map_ptr->get_point(tmp.first,tmp.second);
+
+        if((next_point==0||next_point==5)&&tmp!=head->next->position)
+        {
+            direction=0;
+            return;
+        }
+    }
+    //down
+    else if(closest_point.first>head->position.first)
+    {
+        pair<int,int> tmp=head->position;
+        tmp.first+=move_xy[2][0];
+        tmp.second+=move_xy[2][1];
+        int next_point=map_ptr->get_point(tmp.first,tmp.second);
+
+        if((next_point==0||next_point==5)&&tmp!=head->next->position)
+        {
+            direction=2;
+            return;
+        }
+    }
+
+    //left
+    if(closest_point.second<head->position.second)
+    {
+        pair<int,int> tmp=head->position;
+        tmp.first+=move_xy[3][0];
+        tmp.second+=move_xy[3][1];
+        int next_point=map_ptr->get_point(tmp.first,tmp.second);
+
+        if((next_point==0||next_point==5)&&tmp!=head->next->position)
+        {
+            direction=3;
+            return;
+        }
+    }
+    //right
+    else if(closest_point.second>head->position.second)
+    {
+        pair<int,int> tmp=head->position;
+        tmp.first+=move_xy[1][0];
+        tmp.second+=move_xy[1][1];
+        int next_point=map_ptr->get_point(tmp.first,tmp.second);
+
+        if((next_point==0||next_point==5)&&tmp!=head->next->position)
+        {
+            direction=1;
+            return;
+        }
+    }
+    */
+   /*
+   bool computer_snake::move_body()
+{
+    int move_xy[4][2]={{-1,0},
+                        {0,1},
+                        {1,0},
+                        {0,-1}};
+    
+    if(is_eat==0)
+    {
+    
+        mvprintw(tail->position.first,50+2*tail->position.second,"  ");
+        map_ptr->map_change_point(tail->position.first,tail->position.second,0);
+        
+
+        snake_body *current=tail;
+
+        while(current->previous!=nullptr)
+        {
+            //printw("( %d,%d ) ",current->position.first,current->position.second);
+            //refresh();
+            //sleep(1);
+            current->position=current->previous->position;
+            current=current->previous;
+        }
+
+
+        head->position.first+=move_xy[direction][0];
+        head->position.second+=move_xy[direction][1];
+
+    }
+    else
+    eat_point();
+
+
+    int head_point=map_ptr->get_point(head->position.first,head->position.second);
+
+    if(map_ptr->get_player(1)!=this)
+    {
+        //move(0,0);
+        //printw("     ");
+        //move(0,0);
+        //printw("%d,%d",max_score,max_score_direction);
+        move(5,0);
+        printw("%d,%d",head->position.first,head->position.second);
+    }
+    else
+    {
+        //move(10,0);
+        //printw("     ");
+        //move(10,0);
+        //printw("%d,%d",max_score,max_score_direction);
+        move(15,0);
+        printw("%d,%d",head->position.first,head->position.second);
+    }
+
+    if(head_point!=0&&head_point!=5)
+    return 0;
+    
+
+    if(head_point==5)
+    is_eat=1;
+
+    map_ptr->map_change_point(head->position.first,head->position.second,2);
+    
+    //mvprintw(head->position.first,50+2*head->position.second,"██");
+    mvprintw(head->position.first,50+2*head->position.second,"%s","💓");
+    mvprintw(head->next->position.first,50+2*head->next->position.second,"%s","🌟");
+    mvprintw(head->next->next->position.first,50+2*head->next->next->position.second,"%s",body_element);
+    //mvprintw(head->position.first,50+2*head->position.second,"%s",body_element);
+    //💠💓💢🌟🔲🔳▒▒ ░░ ▓▓ 
+    
+
+    refresh();
+    move(0,0);
+    //change_direction(0);
+    return 1;
+}
+*/
