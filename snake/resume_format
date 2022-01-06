@@ -4,7 +4,9 @@ gmae setting
 
 game_mode(3 bit)    000 noraml  001 unwall  010 barrier 011 special
 player1 (2 bit)      00 player   01 computer 
+player1_skin(2bit)   00 💠       01 💓       10 💢
 player2 (2 bit)      00 X        01 player   10 computer
+player2_skin(2bit)   00 💠       01 💓       10 💢
 food_num(2 bit)      00 1        01 3        10 5        11 7
 speed(2 bit)         00 slow     01 middle   10 fast
 map_size(2 bit)      00 20*20    01 30*30    10 40*40    11 50*50

@@ -184,10 +184,10 @@ void game_menu::game_setting()
 
     int choice=0;
     int state=0;
-    int setting[6]={0};
-    int setting_limit[6]={3,1,2,3,2,3};
+    int setting[8]={0};
+    int setting_limit[8]={3,1,2,2,2,3,2,3};
     //memset(setting,0,sizeof(setting));
-
+    
 
    
 
@@ -196,49 +196,49 @@ void game_menu::game_setting()
     a=b=clock();
 
     while(1)
-    {
+    {   
         if(kbhit())
         {
             //printw("%d",getch());
             switch (getch())
             {
                 case KEY_UP:
-                    mvprintw(20+5*choice,85," ");
-                    mvprintw(20+5*choice,110," ");
-                    mvprintw(20+5*choice,125," ");
+                    mvprintw(15+5*choice,85," ");
+                    mvprintw(15+5*choice,110," ");
+                    mvprintw(15+5*choice,125," ");
 
                     choice--;
                     if(choice<0)
-                    choice=5;
+                    choice=7;
                         
                     
                     a=b=clock();
                     state=0;
                     
-                    mvprintw(20+5*choice,85,"►");
-                    mvprintw(20+5*choice,110,"◅");
-                    mvprintw(20+5*choice,125,"▻");
+                    mvprintw(15+5*choice,85,"►");
+                    mvprintw(15+5*choice,110,"◅");
+                    mvprintw(15+5*choice,125,"▻");
                     move(0,0);
                     refresh();
 
                     break;
 
                 case KEY_DOWN:
-                    mvprintw(20+5*choice,85," ");
-                    mvprintw(20+5*choice,110," ");
-                    mvprintw(20+5*choice,125," ");
+                    mvprintw(15+5*choice,85," ");
+                    mvprintw(15+5*choice,110," ");
+                    mvprintw(15+5*choice,125," ");
 
                     choice++;
-                    if(choice>5)
+                    if(choice>7)
                     choice=0;
                         
                     
                     a=b=clock();
                     state=0;
                     
-                    mvprintw(20+5*choice,85,"►");
-                    mvprintw(20+5*choice,110,"◅");
-                    mvprintw(20+5*choice,125,"▻");
+                    mvprintw(15+5*choice,85,"►");
+                    mvprintw(15+5*choice,110,"◅");
+                    mvprintw(15+5*choice,125,"▻");
                     move(0,0);
                     refresh();
                     
@@ -249,7 +249,14 @@ void game_menu::game_setting()
                     if(setting[choice]<0)
                     setting[choice]=setting_limit[choice];
 
-                    
+                    if(choice==4&&setting[3]==0)
+                    break;
+
+                    if(choice==3&&setting[3]!=0)
+                    game_change_setting(4,setting[4]);
+                    else if(choice==3&&setting[3]==0)
+                    mvprintw(35,115,"X      ");
+
                     game_change_setting(choice,setting[choice]);
                     
                     break;
@@ -259,7 +266,14 @@ void game_menu::game_setting()
                     if(setting[choice]>setting_limit[choice])
                     setting[choice]=0;
 
-                    
+                    if(choice==4&&setting[3]==0)
+                    break;
+
+                    if(choice==3&&setting[3]!=0)
+                    game_change_setting(4,setting[4]);
+                    else if(choice==3&&setting[3]==0)
+                    mvprintw(35,115,"X      ");
+
                     game_change_setting(choice,setting[choice]);
                     break;
 
@@ -269,7 +283,7 @@ void game_menu::game_setting()
 
 
                 case 10:
-                    into_game(setting[0],setting[1],setting[2],setting[3],setting[4],setting[5]);
+                    into_game(setting[0],setting[1],setting[2],setting[3],setting[4],setting[5],setting[6],setting[7]);
                     return;
 
 
@@ -285,9 +299,9 @@ void game_menu::game_setting()
         if(b-a>500000)
         {
             if(state)
-            mvprintw(20+5*choice,85,"►");
+            mvprintw(15+5*choice,85,"►");
             else
-            mvprintw(20+5*choice,85," ");
+            mvprintw(15+5*choice,85," ");
 
             move(0,0);
             refresh();
@@ -312,16 +326,16 @@ void game_menu::game_change_setting(int choice,int setting)
             switch (setting)
             {
                 case 0:
-                    mvprintw(20,115,"Normal  ");
+                    mvprintw(15,115,"Normal  ");
                     break;
                 case 1:
-                    mvprintw(20,115,"Unwall  ");
+                    mvprintw(15,115,"Unwall  ");
                     break;
                 case 2:
-                    mvprintw(20,115,"Barrier ");
+                    mvprintw(15,115,"Barrier ");
                     break;
                 case 3:
-                    mvprintw(20,115,"Special ");
+                    mvprintw(15,115,"Special ");
                     break;
             }
             break;
@@ -329,14 +343,28 @@ void game_menu::game_change_setting(int choice,int setting)
             switch (setting)
             {
                 case 0:
-                    mvprintw(25,115,"Player  ");
+                    mvprintw(20,115,"Player  ");
                     break;
                 case 1:
-                    mvprintw(25,115,"Computer  ");
+                    mvprintw(20,115,"Computer  ");
                     break;
             }
             break;
         case 2:
+            switch (setting)
+            {
+                case 0:
+                    mvprintw(25,115,"💠💠💠");
+                    break;
+                case 1:
+                    mvprintw(25,115,"💓💓💓");
+                    break;
+                case 2:
+                    mvprintw(25,115,"💢💢💢");
+                    break;
+            }
+            break;
+        case 3:
             switch (setting)
             {
                 case 0:
@@ -350,53 +378,67 @@ void game_menu::game_change_setting(int choice,int setting)
                     break;
             }
             break;
-        case 3:
-            switch (setting)
-            {
-                case 0:
-                    mvprintw(35,115,"1");
-                    break;
-                case 1:
-                    mvprintw(35,115,"3");
-                    break;
-                case 2:
-                    mvprintw(35,115,"5");
-                    break;
-                case 3:
-                    mvprintw(35,115,"7");
-                    break;
-            }
-            break;
         case 4:
             switch (setting)
             {
                 case 0:
-                    mvprintw(40,115,"Slow  ");
+                    mvprintw(35,115,"💠💠💠");
                     break;
                 case 1:
-                    mvprintw(40,115,"Middle");
+                    mvprintw(35,115,"💓💓💓");
                     break;
                 case 2:
-                    mvprintw(40,115,"Fast  ");
+                    mvprintw(35,115,"💢💢💢");
+                    break;
+            }
+            break;
+        case 5:
+            switch (setting)
+            {
+                case 0:
+                    mvprintw(40,115,"1");
+                    break;
+                case 1:
+                    mvprintw(40,115,"3");
+                    break;
+                case 2:
+                    mvprintw(40,115,"5");
+                    break;
+                case 3:
+                    mvprintw(40,115,"7");
+                    break;
+            }
+            break;
+        case 6:
+            switch (setting)
+            {
+                case 0:
+                    mvprintw(45,115,"Slow  ");
+                    break;
+                case 1:
+                    mvprintw(45,115,"Middle");
+                    break;
+                case 2:
+                    mvprintw(45,115,"Fast  ");
                     break;
                 
             }
             break;
 
-        case 5:
+        case 7:
             switch (setting)
             {
                 case 0:
-                    mvprintw(45,115,"20*20");
+                    mvprintw(50,115,"20*20");
                     break;
                 case 1:
-                    mvprintw(45,115,"30*30");
+                    mvprintw(50,115,"30*30");
                     break;
                 case 2:
-                    mvprintw(45,115,"40*40");
+                    mvprintw(50,115,"40*40");
                     break;
                 case 3:
-                    mvprintw(45,115,"50*50");
+                    mvprintw(50,115,"50*50");
                     break;
                 
                 
@@ -409,39 +451,48 @@ void game_menu::game_change_setting(int choice,int setting)
     move(0,0);
 }
 
-void game_menu::into_game(int map,int player1,int player2,int food_num,int speed,int map_size)
+void game_menu::into_game(int map,int player1,int player1_skin,int player2,int player2_skin,int food_num,int speed,int map_size)
 {
-    snake_map *ptr;
-    //speed=50000+20000*(2-speed);
-    std::pair<int,int> size(20+10*map_size,20+10*map_size);
+    while(1)
+    {
+        attron(COLOR_PAIR(3));
+        snake_map *ptr;
+        //speed=50000+20000*(2-speed);
+        std::pair<int,int> size(20+10*map_size,20+10*map_size);
+        char* skin[3]={"💠","💓","💢"};
+        
+        if(map==0)
+        ptr=new snake_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
+        else if(map==1)
+        ptr=new unwall_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
+        else if(map==2)
+        ptr=new barrier_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
+        else
+        ptr=new special_food_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
 
-    
-    if(map==0)
-    ptr=new snake_map(player1,player2,1+2*food_num,50000+20000*(2-speed),size);
-    else if(map==1)
-    ptr=new unwall_map(player1,player2,1+2*food_num,50000+20000*(2-speed),size);
-    else if(map==2)
-    ptr=new barrier_map(player1,player2,1+2*food_num,50000+20000*(2-speed),size);
-    else
-    ptr=new special_food_map(player1,player2,1+2*food_num,50000+20000*(2-speed),size);
+        std::ofstream output_file("resume",std::ios::binary);
+        
+        input_binary_data(1,1,output_file);
+        input_binary_data(3,map,output_file);
+        input_binary_data(2,player1,output_file);
+        input_binary_data(2,player1_skin,output_file);
+        input_binary_data(2,player2,output_file);
+        input_binary_data(2,player2_skin,output_file);
+        input_binary_data(2,food_num,output_file);
+        input_binary_data(2,speed,output_file);
+        input_binary_data(2,map_size,output_file);
 
-    std::ofstream output_file("resume",std::ios::binary);
-    
-    input_binary_data(1,1,output_file);
-    input_binary_data(3,map,output_file);
-    input_binary_data(2,player1,output_file);
-    input_binary_data(2,player2,output_file);
-    input_binary_data(2,food_num,output_file);
-    input_binary_data(2,speed,output_file);
-    input_binary_data(2,map_size,output_file);
-
-    
+        
+        output_file.close();
 
 
-    output_file.close();
 
-    ptr->down_counter();
-    ptr->game_time();
+        ptr->down_counter();
+        ptr->game_time();
+
+        if(play_again(ptr)==0)
+        return;
+    }
 
     
 }
@@ -480,23 +531,27 @@ void game_menu::print_initail_menu()
 
 void game_menu::print_game_setting_menu()
 {
-    mvprintw(20,95,"Game mode           ");
-    mvprintw(25,95,"P1                  ");
+    mvprintw(15,95,"Game mode           ");
+    mvprintw(20,95,"P1                  ");
+    mvprintw(25,95,"P1 skin             ");
     mvprintw(30,95,"P2                  ");
-    mvprintw(35,95,"Food Number         ");
-    mvprintw(40,95,"Move Speed          ");
-    mvprintw(45,95,"Map size            ");
+    mvprintw(35,95,"P2 skin             ");
+    mvprintw(40,95,"Food Number         ");
+    mvprintw(45,95,"Move Speed          ");
+    mvprintw(50,95,"Map size            ");
 
-    mvprintw(20,115,"Normal");
-    mvprintw(25,115,"Player");
+    mvprintw(15,115,"Normal");
+    mvprintw(20,115,"Player");
+    mvprintw(25,115,"💠💠💠");
     mvprintw(30,115,"X");
-    mvprintw(35,115,"1");
-    mvprintw(40,115,"Slow");
-    mvprintw(45,115,"20*20");
+    mvprintw(35,115,"X");
+    mvprintw(40,115,"1");
+    mvprintw(45,115,"Slow");
+    mvprintw(50,115,"20*20");
 
-    mvprintw(20,85,"►");
-    mvprintw(20,110,"◅");
-    mvprintw(20,125,"▻");
+    mvprintw(15,85,"►");
+    mvprintw(15,110,"◅");
+    mvprintw(15,125,"▻");
     //◅    ▻
     move(0,0);
 }
@@ -824,22 +879,26 @@ void game_menu::load_game()
         {
             //for(int i=0;i<buffer.size();i++)
             //mvprintw(0,i,"%c",buffer[i]);
-
+            
             int game_mod=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+1,buffer.begin()+4));
             int player1=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+4,buffer.begin()+6));
-            int player2=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+6,buffer.begin()+8));
-            int food_num=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+8,buffer.begin()+10));
-            int speed=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+10,buffer.begin()+12));
-            int map_size=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+12,buffer.end()));
+            int player1_skin=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+6,buffer.begin()+8));
+            int player2=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+8,buffer.begin()+10));
+            int player2_skin=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+10,buffer.begin()+12));
+            int food_num=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+12,buffer.begin()+14));
+            int speed=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+14,buffer.begin()+16));
+            int map_size=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+16,buffer.end()));
             //mvprintw(3,0,"%d",binary_to_decimal(std::vector<unsigned char>(buffer.begin()+10,buffer.begin()+12)));
             mvprintw(0,0,"%d",game_mod);
             mvprintw(1,0,"%d",player1);
-            mvprintw(2,0,"%d",player2);
-            mvprintw(3,0,"%d",food_num);
-            mvprintw(4,0,"%d",speed);
-            mvprintw(5,0,"%d",map_size);
+            mvprintw(2,0,"%d",player1_skin);
+            mvprintw(3,0,"%d",player2);
+            mvprintw(4,0,"%d",player2_skin);
+            mvprintw(5,0,"%d",food_num);
+            mvprintw(6,0,"%d",speed);
+            mvprintw(7,0,"%d",map_size);
 
-            into_game(game_mod,player1,player2,food_num,speed,map_size);
+            into_game(game_mod,player1,player1_skin,player2,player2_skin,food_num,speed,map_size);
 
         }
     }
@@ -864,4 +923,107 @@ int game_menu::binary_to_decimal(std::vector<unsigned char> data)
     return r;
 
 
+}
+
+bool game_menu::play_again(snake_map*ptr){
+    while(1)
+    {
+        attron(COLOR_PAIR(4));
+
+        mvprintw(ptr->middle.first+(ptr->get_height())/2-2,ptr->middle.second+60+ptr->get_width()-7,"┌─────────────────┐");
+        mvprintw(ptr->middle.first+(ptr->get_height())/2-1,ptr->middle.second+60+ptr->get_width()-7,"│   Play Again?   │");
+        mvprintw(ptr->middle.first+(ptr->get_height())/2,ptr->middle.second+60+ptr->get_width()-7,  "│                 │");
+        mvprintw(ptr->middle.first+(ptr->get_height())/2+1,ptr->middle.second+60+ptr->get_width()-7,"│   ►   YES       │");
+        mvprintw(ptr->middle.first+(ptr->get_height())/2+2,ptr->middle.second+60+ptr->get_width()-7,"│                 │");
+        mvprintw(ptr->middle.first+(ptr->get_height())/2+3,ptr->middle.second+60+ptr->get_width()-7,"│       NO        │");
+        mvprintw(ptr->middle.first+(ptr->get_height())/2+4,ptr->middle.second+60+ptr->get_width()-7,"└─────────────────┘");
+
+        attroff(COLOR_PAIR(4));
+
+        int choice=0;
+        int state=0;
+
+
+        clock_t a,b;
+
+        a=b=clock();
+
+        while(1)
+        {
+            if(kbhit())
+            {
+                //printw("%d",getch());
+                switch (getch())
+                {
+                    case KEY_UP:
+                        attron(COLOR_PAIR(4));
+                        mvprintw(ptr->middle.first+(ptr->get_height())/2+1+2*choice,ptr->middle.second+60+ptr->get_width()-3," ");
+                        choice--;
+
+                        if(choice<0)
+                        choice=1;
+                            
+                        
+                        a=b=clock();
+                        state=0;
+                        mvprintw(ptr->middle.first+(ptr->get_height())/2+1+2*choice,ptr->middle.second+60+ptr->get_width()-3,"►");
+                        move(0,0);
+                        refresh();
+                        attroff(COLOR_PAIR(4));
+                        break;
+
+                    case KEY_DOWN:
+                        attron(COLOR_PAIR(4));
+                        mvprintw(ptr->middle.first+(ptr->get_height())/2+1+2*choice,ptr->middle.second+60+ptr->get_width()-3," ");
+                        choice++;
+
+                        if(choice>1)
+                        choice=0;
+                            
+                        
+                        a=b=clock();
+                        state=0;
+                        mvprintw(ptr->middle.first+(ptr->get_height())/2+1+2*choice,ptr->middle.second+60+ptr->get_width()-3,"►");
+                        move(0,0);
+                        refresh();
+                        attroff(COLOR_PAIR(4));
+                        
+                        break;
+
+                    case 27:
+                        return 0;
+
+                    case 10:
+                    {
+                        if(choice==0)
+                        return 1;
+                        else
+                        return 0;
+                        
+                    }
+
+                }
+
+            }
+
+            b=clock();
+
+            if(b-a>500000)
+            {
+                attron(COLOR_PAIR(4));
+                if(state)
+                mvprintw(ptr->middle.first+(ptr->get_height())/2+1+2*choice,ptr->middle.second+60+ptr->get_width()-3,"►");
+                else
+                mvprintw(ptr->middle.first+(ptr->get_height())/2+1+2*choice,ptr->middle.second+60+ptr->get_width()-3," ");
+
+                move(0,0);
+                refresh();
+                state=!state;
+                a=b=clock();
+                attroff(COLOR_PAIR(4));
+            }
+
+        }
+        
+    }
 }

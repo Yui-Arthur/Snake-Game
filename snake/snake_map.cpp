@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 
-snake_map::snake_map(int player_1,int player_2,int food_num,int speed,std::pair<int,int> map_size){
+snake_map::snake_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size){
     height=map_size.first;
     width=map_size.second;
     time_interval=speed;
@@ -18,17 +18,17 @@ snake_map::snake_map(int player_1,int player_2,int food_num,int speed,std::pair<
     
     
     if(player_1==0)
-    player1=new player_snake(this,1,"💠");
+    player1=new player_snake(this,1,player1_skin);
     else
-    player1=new computer_snake(this,1,"💠");
+    player1=new computer_snake(this,1,player1_skin);
 
 
     if(player_2==0)
     player2=nullptr;
     else if(player_2==1)
-    player2=new player_snake(this,2,"💓");
+    player2=new player_snake(this,2,player2_skin);
     else
-    player2=new computer_snake(this,2,"💓");
+    player2=new computer_snake(this,2,player2_skin);
 
 
     //player1=new special_player_snake(this,1,"💠");
@@ -662,7 +662,7 @@ void snake_map::down_counter(){
 
 
 
-unwall_map::unwall_map(int player_1,int player_2,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player_2,food_num,speed,map_size){
+unwall_map::unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,food_num,speed,map_size){
     print();
     if(player_1==0)
     player1=new unwall_player_snake(this,1,"💠");
@@ -804,7 +804,7 @@ void unwall_map::print()
 }
 
 
-special_food_map::special_food_map(int player_1,int player_2,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player_2,0,speed,map_size){
+special_food_map::special_food_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,food_num,speed,map_size){
     
     for(int i=0;i<food_num;i++)
     random_food();
@@ -1032,7 +1032,7 @@ void special_food_map::check_food_type()
     
 }
 
-barrier_map::barrier_map(int player_1,int player_2,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player_2,food_num,speed,map_size){
+barrier_map::barrier_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,food_num,speed,map_size){
     
 }
 

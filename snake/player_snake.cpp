@@ -309,3 +309,4 @@ bool special_player_snake::move_body()
     return 1;
 
 }
+

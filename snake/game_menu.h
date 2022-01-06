@@ -15,7 +15,7 @@ class game_menu{
         void game_setting();
         void print_game_setting_menu();
         void game_change_setting(int,int);
-        void into_game(int,int,int,int,int,int);
+        void into_game(int,int,int,int,int,int,int,int);
         void github();
         char* get_local_ipAddr();
         void server_connection();
@@ -25,6 +25,7 @@ class game_menu{
         void input_binary_data(int ,int,std::ofstream&);
         int binary_to_decimal(std::vector<unsigned char>);
         void load_game();
+        bool play_again(snake_map*);
 
     
 

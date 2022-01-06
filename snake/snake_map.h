@@ -7,7 +7,7 @@ class snake;
 class snake_map{
 
     public:
-        snake_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        snake_map(int player_1,char * player1_skin,int player_2,char* player_2_skin,int food_num,int speed,std::pair<int,int> map_size);
         virtual void print();
         void reset();
         int get_point(int,int);
@@ -43,27 +43,27 @@ class snake_map{
 
 class connection_map:public snake_map{
     public:
-        connection_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        connection_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void player_control();
 };
 
 class unwall_map:public snake_map{
     public:
-        unwall_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void print();
 
 };
 
 class connection_unwall_map:public unwall_map{
     public:
-        connection_unwall_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        connection_unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void player_control();
 };
 
 class special_food_map:public snake_map{
 
     public:
-        special_food_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        special_food_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void random_food();
         bool player_move_body();
         void player_control();
@@ -77,19 +77,19 @@ class special_food_map:public snake_map{
 
 class connection_special_map:public unwall_map{
     public:
-        connection_special_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        connection_special_map(int player_1,char * player1_skin,int player_2,char* player_2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void player_control();
 };
 
 class barrier_map:public snake_map{
     public:
-        barrier_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        barrier_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void random_food();
 };
 
 class connection_barrier_map:public unwall_map{
     public:
-        connection_barrier_map(int player1,int player2,int food_num,int speed,std::pair<int,int> map_size);
+        connection_barrier_map(int player_1,char * player1_skin,int player2,char* player_2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void player_control();
 };
 
