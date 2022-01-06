@@ -4,6 +4,8 @@
 #include <cstring>
 #include <utility>
 #include <python3.8/Python.h>
+#include <algorithm>
+#include <fstream>
 #include <errno.h>      ///< errno
 #include <sys/socket.h> ///< socket
 #include <netinet/in.h> ///< sockaddr_in
@@ -89,7 +91,7 @@ void game_menu::initial_menu()
                     choice--;
 
                     if(choice<0)
-                    choice=3;
+                    choice=4;
                         
                     
                     a=b=clock();
@@ -103,7 +105,7 @@ void game_menu::initial_menu()
                     mvprintw(20+5*choice,100," ");
                     choice++;
 
-                    if(choice>3)
+                    if(choice>4)
                     choice=0;
                         
                     
@@ -122,21 +124,18 @@ void game_menu::initial_menu()
                 case 10:
                 {
                     if(choice==0)
-                    {
-                        game_setting();
-                        print_initail_menu();
-                    }
+                    game_setting();                           
                     else if(choice==1)
-                    {
-                        connect_play();
-                        print_initail_menu();
-                        choice=0;
-                    }
-                    //get_local_ipAddr();
+                    load_game();
                     else if(choice==2)
-                    github();
+                    connect_play();    
                     else if(choice==3)
+                    github();
+                    else if(choice==4)
                     return;
+
+                    choice=0;
+                    print_initail_menu();
                 }
 
 
@@ -413,17 +412,33 @@ void game_menu::game_change_setting(int choice,int setting)
 void game_menu::into_game(int map,int player1,int player2,int food_num,int speed,int map_size)
 {
     snake_map *ptr;
-    speed=50000+20000*(2-speed);
+    //speed=50000+20000*(2-speed);
     std::pair<int,int> size(20+10*map_size,20+10*map_size);
 
+    
     if(map==0)
-    ptr=new snake_map(player1,player2,1+2*food_num,speed,size);
+    ptr=new snake_map(player1,player2,1+2*food_num,50000+20000*(2-speed),size);
     else if(map==1)
-    ptr=new unwall_map(player1,player2,1+2*food_num,speed,size);
+    ptr=new unwall_map(player1,player2,1+2*food_num,50000+20000*(2-speed),size);
     else if(map==2)
-    ptr=new barrier_map(player1,player2,1+2*food_num,speed,size);
+    ptr=new barrier_map(player1,player2,1+2*food_num,50000+20000*(2-speed),size);
     else
-    ptr=new special_food_map(player1,player2,1+2*food_num,speed,size);
+    ptr=new special_food_map(player1,player2,1+2*food_num,50000+20000*(2-speed),size);
+
+    std::ofstream output_file("resume",std::ios::binary);
+    
+    input_binary_data(1,1,output_file);
+    input_binary_data(3,map,output_file);
+    input_binary_data(2,player1,output_file);
+    input_binary_data(2,player2,output_file);
+    input_binary_data(2,food_num,output_file);
+    input_binary_data(2,speed,output_file);
+    input_binary_data(2,map_size,output_file);
+
+    
+
+
+    output_file.close();
 
     ptr->down_counter();
     ptr->game_time();
@@ -453,9 +468,10 @@ void game_menu::print_initail_menu()
     
 
     mvprintw(20,105,"Play");
-    mvprintw(25,105,"Play Online");
-    mvprintw(30,105,"See Github");
-    mvprintw(35,105,"Exit");
+    mvprintw(25,105,"Load Game");
+    mvprintw(30,105,"Play Online");
+    mvprintw(35,105,"See Github");
+    mvprintw(40,105,"Exit");
 
     mvprintw(20,100,"►");
     move(0,0);
@@ -467,9 +483,9 @@ void game_menu::print_game_setting_menu()
     mvprintw(20,95,"Game mode           ");
     mvprintw(25,95,"P1                  ");
     mvprintw(30,95,"P2                  ");
-    mvprintw(35,95,"Food Number");
-    mvprintw(40,95,"Move Speed");
-    mvprintw(45,95,"Map size  ");
+    mvprintw(35,95,"Food Number         ");
+    mvprintw(40,95,"Move Speed          ");
+    mvprintw(45,95,"Map size            ");
 
     mvprintw(20,115,"Normal");
     mvprintw(25,115,"Player");
@@ -601,7 +617,8 @@ void game_menu::connect_play()
     mvprintw(25,100,"                  ");
     mvprintw(30,100,"                  ");
     mvprintw(35,100,"                  ");
-    
+    mvprintw(40,100,"                  ");
+
     get_local_ipAddr();
 
     mvprintw(22,98,"Connect with Your Friends");
@@ -759,5 +776,92 @@ int game_menu::socket_connect(std::vector<char> input_addr)
 
     //mvprintw(0,0,"!");
     return r;
+
+}
+
+void game_menu::input_binary_data(int digit,int data,std::ofstream &file)
+{
+    //output_file << '1';
+    std::vector<int> bit;
+    for(int i=0;i<digit;i++)
+    {
+        if(data!=0)
+        bit.push_back(data%2);
+        else
+        bit.push_back(0);
+
+        data=data>>1;
+    }
+    std::reverse(bit.begin(),bit.end());
+
+    for(int i=0;i<digit;i++)
+    {
+        file<<bit[i];
+    }
+
+    return;
+}
+
+void game_menu::load_game()
+{
+    std::ifstream game_log;
+    game_log.open("resume",std::ios::binary);
+    if (game_log.fail()) {
+        mvprintw(23,99,"┌──────────────────┐");
+        mvprintw(24,99,"│   No File Exit   │");
+        mvprintw(25,99,"└──────────────────┘");
+    }
+    else
+    {
+        std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(game_log), {});
+        if(buffer.empty())
+        {
+            mvprintw(23,99,"┌──────────────────┐");
+            mvprintw(24,99,"│   No File Exit   │");
+            mvprintw(25,99,"└──────────────────┘");
+        }
+        else
+        {
+            //for(int i=0;i<buffer.size();i++)
+            //mvprintw(0,i,"%c",buffer[i]);
+
+            int game_mod=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+1,buffer.begin()+4));
+            int player1=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+4,buffer.begin()+6));
+            int player2=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+6,buffer.begin()+8));
+            int food_num=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+8,buffer.begin()+10));
+            int speed=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+10,buffer.begin()+12));
+            int map_size=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+12,buffer.end()));
+            //mvprintw(3,0,"%d",binary_to_decimal(std::vector<unsigned char>(buffer.begin()+10,buffer.begin()+12)));
+            mvprintw(0,0,"%d",game_mod);
+            mvprintw(1,0,"%d",player1);
+            mvprintw(2,0,"%d",player2);
+            mvprintw(3,0,"%d",food_num);
+            mvprintw(4,0,"%d",speed);
+            mvprintw(5,0,"%d",map_size);
+
+            into_game(game_mod,player1,player2,food_num,speed,map_size);
+
+        }
+    }
+    
+    
+    return;
+}
+
+int game_menu::binary_to_decimal(std::vector<unsigned char> data)
+{
+    int r=0;
+    for(int i=0;i<data.size();i++)
+    {
+        if(i!=0)
+        r=r<<1;
+
+        r+=data[i]-'0';
+        //if(data[i]=='0')
+
+    }
+
+    return r;
+
 
 }

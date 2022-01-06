@@ -964,7 +964,7 @@ bool special_food_map::player_move_body()
     player_erase_tail();
     if(reverse_num>0)
     reverse_num--;
-
+    
     if(player2==nullptr)
     {
         bool result=player1->move_body();
@@ -989,6 +989,8 @@ bool special_food_map::player_move_body()
         show_length();
         return  result1&&result2 ;
     }
+    
+   //return snake_map::player_move_body();
 }
 
 void special_food_map::check_food_type()

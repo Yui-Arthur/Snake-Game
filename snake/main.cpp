@@ -21,7 +21,8 @@ int main()
     nodelay(stdscr, TRUE);
     keypad(stdscr,TRUE);
     
-    new game_menu;
+    //new game_menu;
+    game_menu();
     //initial_menu();
     /*
     double x=3.92;
