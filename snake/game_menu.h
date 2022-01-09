@@ -22,11 +22,11 @@ class game_menu{
         void client_connection();
         void connect_play();
         int socket_connect(std::vector<char>);
-        void input_binary_data(int ,int,std::ofstream&);
+        //void input_binary_data(int ,int,std::ofstream&);
         int binary_to_decimal(std::vector<unsigned char>);
         void load_game();
         bool play_again(snake_map*);
-
+        void switch_picture(int choice);
     
 
 };

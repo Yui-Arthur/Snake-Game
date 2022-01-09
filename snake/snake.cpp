@@ -1,6 +1,10 @@
 #include "snake.h"
 #include "snake_map.h"
 #include <cstring>
+#include <fstream>
+#include <algorithm>
+
+void input_binary_data(int digit,int data,std::ofstream &file);
 
 snake_body::snake_body(int x,int y)
 {
@@ -150,7 +154,16 @@ void snake::erase_tail()
         mvprintw(map_ptr->middle.first+tail->position.first,map_ptr->middle.second+60+2*tail->position.second,"  ");
         attroff(COLOR_PAIR(2));
     }
+    
     map_ptr->map_change_point(tail->position.first,tail->position.second,0);
+    std::ofstream output_file("resume",std::ios::in|std::ios_base::binary);
+    output_file.seekp(30+4*(tail->position.first-1)*(map_ptr->get_width())+4*(tail->position.second-1),ios::beg);
+    input_binary_data(4,0,output_file);
+    //output_file.seekp(0,ios::beg);
+    //output_file<<0;
+    output_file.close();
+
+
 }
 
 void snake::eat_point()

@@ -40,6 +40,7 @@ class snake{
         int get_eat_food();
         char * get_body_element();
         void change_body_element(char*);
+        
 
     protected:
 

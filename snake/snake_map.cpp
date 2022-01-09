@@ -4,7 +4,9 @@
 #include <cstring>
 #include <ctime>
 #include <unistd.h>
-
+#include <algorithm>
+#include <fstream>
+void input_binary_data(int digit,int data,std::ofstream &file);
 
 snake_map::snake_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size){
     height=map_size.first;
@@ -45,10 +47,15 @@ snake_map::snake_map(int player_1,char * player1_skin,int player_2,char* player2
 
     for(int i=0;i<food_num;i++)
     random_food();
+
+    save_data();
 }
 
 void snake_map::reset()
 {
+    
+    
+
     memset(Map,0,sizeof(Map));
     for(int i=1;i<=width;i++)
     {
@@ -68,6 +75,7 @@ void snake_map::reset()
         mvprintw(i,j," ");
     }
 
+    mvprintw(0,0,"!!!!!");
 }
 
 void snake_map::print()
@@ -400,6 +408,8 @@ void snake_map::game_time()
             a=b=clock();
             if(player_move_body()==0)
             return;
+
+            change_snake_head_data();
             move(0,0);
             refresh();
 
@@ -661,6 +671,44 @@ void snake_map::down_counter(){
 }
 
 
+void snake_map::save_data()
+{
+    std::ofstream output_file("resume",std::ios_base::binary|std::ios_base::app);
+    //output_file.seekp(0,ios::end);
+    input_binary_data(6,height,output_file);
+    input_binary_data(6,width,output_file);
+
+    for(int i=1;i<=height;i++)
+    {
+        for(int j=1;j<=width;j++)
+        {
+            input_binary_data(4,Map[i][j],output_file);
+        }
+    }
+
+    output_file.close();
+}
+
+void snake_map::change_snake_head_data()
+{
+    
+    pair<int,int> pos=player1->get_head_pos();
+    std::ofstream output_file("resume",std::ios::in|std::ios_base::binary);
+    //output_file.seekp(0,ios::beg);
+    output_file.seekp(30+4*(pos.first-1)*(width)+4*(pos.second-1),ios::beg);
+    input_binary_data(4,2,output_file);
+    output_file.close();
+
+    if(player2!=nullptr)
+    {
+        pair<int,int> pos=player2->get_head_pos();
+        std::ofstream output_file("resume",std::ios::in|std::ios_base::binary);
+        output_file.seekp(30+4*(pos.first-1)*(width)+4*(pos.second-1),ios::beg);
+        input_binary_data(4,0,output_file);
+        output_file.close();
+    }
+}
+
 
 unwall_map::unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,food_num,speed,map_size){
     print();
@@ -681,47 +729,7 @@ unwall_map::unwall_map(int player_1,char * player1_skin,int player_2,char* playe
 void unwall_map::print()
 {
     attron(COLOR_PAIR(3));
-    /*
-    for(int i=2;i<height;i++)
-    {        
-        mvprintw(middle.first+i,middle.second+60+2," │");   
-        //🔲🔳▒▒ ░░ ▓▓
-    }
-    for(int i=2;i<height;i++)
-    {        
-        mvprintw(middle.first+i,middle.second+60+2*width,"│ ");   
-        //🔲🔳▒▒ ░░ ▓▓
-    }
-    for(int i=2;i<width;i++)
-    {        
-        mvprintw(middle.first+1,middle.second+60+2*i,"──");   
-        //🔲🔳▒▒ ░░ ▓▓
-    }
-    for(int i=2;i<width;i++)
-    {        
-        mvprintw(middle.first+height,middle.second+60+2*i,"──");   
-        //🔲🔳▒▒ ░░ ▓▓
-    }
-
-    mvprintw(middle.first+1,middle.second+60+2," ┌");
-    mvprintw(middle.first+1,middle.second+60+2*width,"┐ ");
-    mvprintw(middle.first+height,middle.second+60+2," └");
-    mvprintw(middle.first+height,middle.second+60+2*width,"┘ ");
-    */
-    /*
-    for(int i=1;i<=height;i++)
-    {
-        mvprintw(middle.first+i,middle.second+60+2,"  ");  
-        mvprintw(middle.first+i,middle.second+60+2*width,"  ");  
-    }
-
-
-    for(int i=1;i<=width;i++)
-    {
-        mvprintw(middle.first+1,middle.second+60+2*i,"  ");  
-        mvprintw(middle.first+height,middle.second+60+2*i,"  ");  
-    }
-    */
+    
     for(int i=1;i<=height;i++)
     {
         for(int j=1;j<=width;j++)
@@ -804,7 +812,7 @@ void unwall_map::print()
 }
 
 
-special_food_map::special_food_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,food_num,speed,map_size){
+special_food_map::special_food_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,0,speed,map_size){
     
     for(int i=0;i<food_num;i++)
     random_food();
@@ -1093,3 +1101,47 @@ void barrier_map::random_food()
 
 
 
+
+
+
+int snake_map::binary_to_decimal(std::vector<unsigned char> data)
+{
+    int r=0;
+    for(int i=0;i<data.size();i++)
+    {
+        if(i!=0)
+        r=r<<1;
+
+        r+=data[i]-'0';
+        //if(data[i]=='0')
+
+    }
+
+    return r;
+
+
+}
+/*
+void input_binary_data(int digit,int data,std::ofstream &file)
+{
+    //output_file << '1';
+    std::vector<int> bit;
+    for(int i=0;i<digit;i++)
+    {
+        if(data!=0)
+        bit.push_back(data%2);
+        else
+        bit.push_back(0);
+
+        data=data>>1;
+    }
+    std::reverse(bit.begin(),bit.end());
+
+    for(int i=0;i<digit;i++)
+    {
+        file<<bit[i];
+    }
+
+    return;
+}
+*/

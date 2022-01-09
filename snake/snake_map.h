@@ -28,6 +28,10 @@ class snake_map{
         snake* get_player(int);
         std::pair<int,int> middle;
         void down_counter();
+        //void input_binary_data(int digit,int data,std::ofstream &file);
+        int binary_to_decimal(std::vector<unsigned char> data);
+        void save_data();
+        void change_snake_head_data();
      
         
 

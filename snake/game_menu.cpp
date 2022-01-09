@@ -26,7 +26,7 @@
 
 //#include "python3.8/Python.h"
 //#include <Python.h>
-
+void input_binary_data(int digit,int data,std::ofstream &file);
 int kbhit()
 {
     int ch = getch();
@@ -323,6 +323,7 @@ void game_menu::game_change_setting(int choice,int setting)
     switch (choice)
     {
         case 0:
+            switch_picture(setting);
             switch (setting)
             {
                 case 0:
@@ -461,15 +462,6 @@ void game_menu::into_game(int map,int player1,int player1_skin,int player2,int p
         std::pair<int,int> size(20+10*map_size,20+10*map_size);
         char* skin[3]={"💠","💓","💢"};
         
-        if(map==0)
-        ptr=new snake_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
-        else if(map==1)
-        ptr=new unwall_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
-        else if(map==2)
-        ptr=new barrier_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
-        else
-        ptr=new special_food_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
-
         std::ofstream output_file("resume",std::ios::binary);
         
         input_binary_data(1,1,output_file);
@@ -484,6 +476,16 @@ void game_menu::into_game(int map,int player1,int player1_skin,int player2,int p
 
         
         output_file.close();
+
+        if(map==0)
+        ptr=new snake_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
+        else if(map==1)
+        ptr=new unwall_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
+        else if(map==2)
+        ptr=new barrier_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
+        else
+        ptr=new special_food_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
+
 
 
 
@@ -553,6 +555,7 @@ void game_menu::print_game_setting_menu()
     mvprintw(15,110,"◅");
     mvprintw(15,125,"▻");
     //◅    ▻
+    switch_picture(0);
     move(0,0);
 }
 
@@ -834,7 +837,7 @@ int game_menu::socket_connect(std::vector<char> input_addr)
 
 }
 
-void game_menu::input_binary_data(int digit,int data,std::ofstream &file)
+void input_binary_data(int digit,int data,std::ofstream &file)
 {
     //output_file << '1';
     std::vector<int> bit;
@@ -887,7 +890,7 @@ void game_menu::load_game()
             int player2_skin=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+10,buffer.begin()+12));
             int food_num=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+12,buffer.begin()+14));
             int speed=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+14,buffer.begin()+16));
-            int map_size=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+16,buffer.end()));
+            int map_size=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+16,buffer.begin()+18));
             //mvprintw(3,0,"%d",binary_to_decimal(std::vector<unsigned char>(buffer.begin()+10,buffer.begin()+12)));
             mvprintw(0,0,"%d",game_mod);
             mvprintw(1,0,"%d",player1);
@@ -897,6 +900,8 @@ void game_menu::load_game()
             mvprintw(5,0,"%d",food_num);
             mvprintw(6,0,"%d",speed);
             mvprintw(7,0,"%d",map_size);
+
+            
 
             into_game(game_mod,player1,player1_skin,player2,player2_skin,food_num,speed,map_size);
 
@@ -1026,4 +1031,84 @@ bool game_menu::play_again(snake_map*ptr){
         }
         
     }
+}
+
+
+void game_menu::switch_picture(int choice)
+{
+    mvprintw(15 ,140,"▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
+    mvprintw(16 ,140,"▓▓                        ▓▓");
+    mvprintw(17 ,140,"▓▓                        ▓▓");
+    mvprintw(18 ,140,"▓▓                        ▓▓");
+    mvprintw(19 ,140,"▓▓                        ▓▓");
+    mvprintw(20 ,140,"▓▓                        ▓▓");
+    mvprintw(21 ,140,"▓▓                        ▓▓");
+    mvprintw(22 ,140,"▓▓                        ▓▓");
+    mvprintw(23 ,140,"▓▓                        ▓▓");
+    mvprintw(24 ,140,"▓▓                        ▓▓");
+    mvprintw(25 ,140,"▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
+    switch (choice)
+    {
+        case 0:
+                mvprintw(17 ,142," 💠💠💠💠🍐       ");
+                mvprintw(18 ,142,"          ↘   💠+1 ");
+                mvprintw(19 ,142,"   💠💠💠💠💠      ");
+                mvprintw(20 ,142,"                       ");
+                mvprintw(21 ,142,"                💠💠💠💠");
+                mvprintw(22 ,142,"                   ⚠ ↘");
+                mvprintw(23 ,142,"                  💀💀💀");
+                mvprintw(27 ,140,"                            ");    
+                mvprintw(29 ,140,"                            ");
+                mvprintw(31 ,140,"                            ");
+                mvprintw(33 ,140,"                            ");
+                
+                
+                //mvprintw(23 ,176,"▓");
+            break;
+        case 1:
+                mvprintw(17 ,142," 💠💠💠💠🍐       ");
+                mvprintw(18 ,142,"          ↘   💠+1 ");
+                mvprintw(19 ,142,"   💠💠💠💠💠      ");
+                mvprintw(20 ,142,"                       ");
+                mvprintw(21 ,142,"                💠💠💠💠");
+                mvprintw(22 ,142,"                     ↘");
+                mvprintw(23 ,142,"💠 ❕             💠💠💠");
+                mvprintw(27 ,140,"                            ");    
+                mvprintw(29 ,140,"                            ");
+                mvprintw(31 ,140,"                            ");
+                mvprintw(33 ,140,"                            ");
+            break;
+        case 2:
+                mvprintw(17 ,142," 💠💠💠💠🍐       ");
+                mvprintw(18 ,142,"          ↘   💠+1 ▓▓+1");
+                mvprintw(19 ,142,"   💠💠💠💠💠      ");
+                mvprintw(20 ,142,"                       ");
+                mvprintw(21 ,142,"                💠💠💠💠");
+                mvprintw(22 ,142,"                   ⚠ ↘");
+                mvprintw(23 ,142,"                  💀💀💀");
+                mvprintw(27 ,140,"                            ");    
+                mvprintw(29 ,140,"                            ");
+                mvprintw(31 ,140,"                            ");
+                mvprintw(33 ,140,"                            ");
+
+            break;
+        case 3:
+                mvprintw(17 ,142," 💠💠💠💠🎲       ");
+                mvprintw(18 ,142,"          ↘   💠+1 ");
+                mvprintw(19 ,142,"   💠💠💠💠💠      ");
+                mvprintw(20 ,142,"                       ");
+                mvprintw(21 ,142,"                💠💠💠💠");
+                mvprintw(22 ,142,"                   ⚠ ↘");
+                mvprintw(23 ,142,"                  💀💀💀");    
+                mvprintw(27 ,140,"             🎲            ");                
+                mvprintw(29 ,140,"  ⌛ Speed up  🌀 Teleport ");                
+                mvprintw(31 ,140,"  ⭐ Invincible👻 Opposite  ");                
+                mvprintw(33 ,140,"  🍒 Two Point 😈 Invisible ");
+                
+                
+              
+            break;
+    }
+    refresh();
+    move(0,0);
 }
