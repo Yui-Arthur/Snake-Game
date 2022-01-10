@@ -310,3 +310,104 @@ bool special_player_snake::move_body()
 
 }
 
+void special_player_snake::load_move_body(std::pair<int,int> head_pos,int food_type)
+{
+    if(transparent!=0)
+    transparent--;
+    if(invincible!=0)
+    {
+        invincible--;
+        if(invincible==0)
+        body_element=tmp_element,map_ptr->print_snake();;
+    }
+
+    if(eat_food_type==0)
+    {
+        map_ptr->map_change_point(tail->position.first,tail->position.second,0);
+        if((tail->position.first+tail->position.second)%2)
+        {
+            attron(COLOR_PAIR(1));
+            mvprintw(map_ptr->middle.first+tail->position.first,map_ptr->middle.second+60+2*tail->position.second,"  ");
+            attroff(COLOR_PAIR(1));
+        }
+        else
+        {
+            attron(COLOR_PAIR(2));
+            mvprintw(map_ptr->middle.first+tail->position.first,map_ptr->middle.second+60+2*tail->position.second,"  ");
+            attroff(COLOR_PAIR(2));
+        }
+        
+        snake_body *current=tail;
+
+        while(current->previous!=nullptr)
+        {
+            current->position=current->previous->position;
+            current=current->previous;
+        }
+
+        mvprintw(3,0,"%d ,%d ",tail->position.first,tail->position.second);
+        refresh();
+ 
+        head->position.first=head_pos.first;
+        head->position.second=head_pos.second;
+    }
+    else
+    {
+        mvprintw(3,0,"     ");
+        length++;
+        refresh();
+
+        switch (eat_food_type-6)
+        {
+            case 1:
+                invincible+=20;
+                eat_food_type=0;
+                
+                if(body_element!="⭐")
+                tmp_element=body_element;
+
+                change_body_element("⭐");
+                map_ptr->print_snake();
+
+                break;
+            case 2:
+                eat_food_type=30;
+                break;
+            
+            case 5:
+                transparent+=10;
+                eat_food_type=0;
+                break;
+
+            default:
+                eat_food_type=0;
+        }
+
+
+        snake_body *tmp=head;
+        head=new snake_body(head_pos.first,head_pos.second);
+        head->next=tmp;
+        tmp->previous=head;
+
+    }
+
+    map_ptr->map_change_point(head->position.first,head->position.second,2);
+
+    if((head->position.first+head->position.second)%2)
+    {
+        attron(COLOR_PAIR(1));
+        mvprintw(map_ptr->middle.first+head->position.first,map_ptr->middle.second+60+2*head->position.second,"%s",body_element);
+        attroff(COLOR_PAIR(1));
+    }
+    else
+    {
+        attron(COLOR_PAIR(2));
+        mvprintw(map_ptr->middle.first+head->position.first,map_ptr->middle.second+60+2*head->position.second,"%s",body_element);
+        attroff(COLOR_PAIR(2));
+    }
+
+    eat_food_type=food_type;
+    
+
+}
+

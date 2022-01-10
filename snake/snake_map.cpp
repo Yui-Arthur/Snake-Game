@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <fstream>
 void input_binary_data(int digit,int data,std::ofstream &file);
+int binary_to_decimal(std::vector<unsigned char> data);
+
 
 snake_map::snake_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size){
     height=map_size.first;
@@ -48,7 +50,7 @@ snake_map::snake_map(int player_1,char * player1_skin,int player_2,char* player2
     for(int i=0;i<food_num;i++)
     random_food();
 
-    save_data();
+  
 }
 
 void snake_map::reset()
@@ -75,7 +77,6 @@ void snake_map::reset()
         mvprintw(i,j," ");
     }
 
-    mvprintw(0,0,"!!!!!");
 }
 
 void snake_map::print()
@@ -312,6 +313,10 @@ void snake_map::show_length()
 
 void snake_map::game_over(int winner)
 {
+    std::ofstream output_file("resume",std::ios::binary);
+    output_file;
+    output_file.close();
+
     if(winner==0)
     {
         player1->change_body_element("💀");
@@ -409,7 +414,7 @@ void snake_map::game_time()
             if(player_move_body()==0)
             return;
 
-            change_snake_head_data();
+            save_snake_head_data();
             move(0,0);
             refresh();
 
@@ -433,7 +438,7 @@ bool snake_map::pause()
     //└─┘
 
     mvprintw(middle.first+height/2-2,60+middle.second+width-1,"Continue");
-    mvprintw(middle.first+height/2+2,60+middle.second+width-1,"Exit");
+    mvprintw(middle.first+height/2+2,60+middle.second+width-1,"Save & Exit");
     mvprintw(middle.first+height/2-2,60+middle.second+width-6,"►");
     /*
     mvprintw(30,115,"Continue");
@@ -671,43 +676,130 @@ void snake_map::down_counter(){
 }
 
 
-void snake_map::save_data()
-{
-    std::ofstream output_file("resume",std::ios_base::binary|std::ios_base::app);
-    //output_file.seekp(0,ios::end);
-    input_binary_data(6,height,output_file);
-    input_binary_data(6,width,output_file);
 
-    for(int i=1;i<=height;i++)
-    {
-        for(int j=1;j<=width;j++)
-        {
-            input_binary_data(4,Map[i][j],output_file);
-        }
-    }
-
-    output_file.close();
-}
-
-void snake_map::change_snake_head_data()
+void snake_map::save_snake_head_data()
 {
     
     pair<int,int> pos=player1->get_head_pos();
-    std::ofstream output_file("resume",std::ios::in|std::ios_base::binary);
+    std::ofstream output_file("resume",std::ios::app|std::ios_base::binary);
     //output_file.seekp(0,ios::beg);
-    output_file.seekp(30+4*(pos.first-1)*(width)+4*(pos.second-1),ios::beg);
-    input_binary_data(4,2,output_file);
+    int direction=player1->get_direction();
+    
+    input_binary_data(6,pos.first,output_file);
+    input_binary_data(6,pos.second,output_file);
+    input_binary_data(2,direction,output_file);
+
+    if(player1->get_eat_food()==0)
+    input_binary_data(1,0,output_file);
+    else
+    input_binary_data(1,1,output_file);
+
     output_file.close();
 
     if(player2!=nullptr)
     {
-        pair<int,int> pos=player2->get_head_pos();
-        std::ofstream output_file("resume",std::ios::in|std::ios_base::binary);
-        output_file.seekp(30+4*(pos.first-1)*(width)+4*(pos.second-1),ios::beg);
-        input_binary_data(4,0,output_file);
+        pos=player2->get_head_pos();
+        std::ofstream output_file("resume",std::ios::app|std::ios_base::binary);
+        direction=player2->get_direction();
+
+        input_binary_data(6,pos.first,output_file);
+        input_binary_data(6,pos.second,output_file);
+        input_binary_data(2,direction,output_file);
+
+        if(player2->get_eat_food()==0)
+        input_binary_data(1,0,output_file);
+        else
+        input_binary_data(1,1,output_file);
+
         output_file.close();
+
     }
+    
 }
+
+bool snake_map::load_game(int food_num)
+{
+    std::ifstream game_log;
+    game_log.open("resume",std::ios::binary);
+
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(game_log), {});
+    //mvprintw(0,0,"!");
+    //refresh();
+
+    //if((buffer.size()-18)%11!=0)
+    //return 0;
+
+    //int total_num=18;
+    for(int i=18;i<buffer.size();)
+    {
+        pair<int,int>head_pos;
+        int read_direction;
+        int check;
+        head_pos.first=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+        i+=6;
+        head_pos.second=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+        i+=6;
+        read_direction=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+2));
+        i+=2;
+        check=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+1));
+        i++;
+
+        if(i>=buffer.size())
+        break;
+
+        mvprintw(0,0,"%d ,%d ",head_pos.first,head_pos.second);
+        mvprintw(1,0,"%d ,%d ",read_direction,check);
+        refresh();
+
+        player1->change_direction(read_direction);
+        player1->load_move_body(head_pos,check);
+
+        
+
+        if(player2!=nullptr)
+        {
+            head_pos.first=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+            i+=6;
+            head_pos.second=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+            i+=6;
+            read_direction=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+2));
+            i+=2;
+            check=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+1));
+            i++;
+
+            if(i>=buffer.size())
+            break;
+
+            player2->change_direction(read_direction);
+            player2->load_move_body(head_pos,check);
+        }
+
+
+        clock_t a,b;
+
+        a=b=clock();
+
+        while(b-a<5000)
+        b=clock();
+
+        
+
+
+
+    }
+
+    game_log.close();
+
+    for(int i=0;i<food_num;i++)
+    random_food();
+}
+
+void snake_map::load_player_move(std::pair<int,int> head_pos,int food_type)
+{
+    
+
+}
+
 
 
 unwall_map::unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,food_num,speed,map_size){
@@ -725,6 +817,8 @@ unwall_map::unwall_map(int player_1,char * player1_skin,int player_2,char* playe
     else
     player2=new unwall_computer_snake(this,2,"💓");
 };
+
+
 
 void unwall_map::print()
 {
@@ -810,6 +904,7 @@ void unwall_map::print()
     move(0,0);
 
 }
+
 
 
 special_food_map::special_food_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,0,speed,map_size){
@@ -1015,7 +1110,7 @@ void special_food_map::check_food_type()
             time_interval=time_interval*0.8+1;
             break;
         case 3:
-            reverse_num=10;
+            reverse_num+=10;
             break;
         case 5:
             break;
@@ -1032,12 +1127,193 @@ void special_food_map::check_food_type()
             time_interval=time_interval*0.8+1;
             break;
         case 3:
-            reverse_num=10;
+            reverse_num+=10;
             break;
         case 5:
             break;
     }
     
+}
+
+void special_food_map::save_snake_head_data()
+{
+    pair<int,int> pos=player1->get_head_pos();
+    std::ofstream output_file("resume",std::ios::app|std::ios_base::binary);
+    //output_file.seekp(0,ios::beg);
+    int direction=player1->get_direction();
+    
+    input_binary_data(6,pos.first,output_file);
+    input_binary_data(6,pos.second,output_file);
+    input_binary_data(2,direction,output_file);
+
+    if(player1->get_eat_food()==0)
+    input_binary_data(1,0,output_file);
+    else
+    {
+        input_binary_data(1,1,output_file);
+        input_binary_data(3,player1->get_eat_food()-5,output_file);
+    }
+
+    output_file.close();
+
+    if(player2!=nullptr)
+    {
+        pos=player2->get_head_pos();
+        std::ofstream output_file("resume",std::ios::app|std::ios_base::binary);
+        direction=player2->get_direction();
+
+        input_binary_data(6,pos.first,output_file);
+        input_binary_data(6,pos.second,output_file);
+        input_binary_data(2,direction,output_file);
+
+        if(player2->get_eat_food()==0)
+        input_binary_data(1,0,output_file);
+        else
+        {
+            input_binary_data(1,1,output_file);
+            input_binary_data(3,player2->get_eat_food()-5,output_file);
+        }
+
+        output_file.close();
+
+    }
+}
+
+bool special_food_map::load_game(int food_num)
+{
+    std::ifstream game_log;
+    game_log.open("resume",std::ios::binary);
+
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(game_log), {});
+    //mvprintw(0,0,"!");
+    //refresh();
+
+    //if((buffer.size()-18)%11!=0)
+    //return 0;
+
+    //int total_num=18;
+    for(int i=18;i<buffer.size();)
+    {
+        if(reverse_num>0)
+        reverse_num--;
+
+        pair<int,int>head_pos;
+        int read_direction;
+        int check;
+        head_pos.first=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+        i+=6;
+        head_pos.second=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+        i+=6;
+        read_direction=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+2));
+        i+=2;
+        check=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+1));
+        i++;
+
+        int food_type=0;
+
+        if(check==1)
+        {
+            food_type=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+3));
+            i+=3;
+            
+            food_type+=5;
+
+            if(i>=buffer.size())
+            break;
+
+            if(time_interval%2==1)
+            time_interval=(time_interval-1)/0.8;
+            
+            switch (food_type-6)
+            {
+                case 0:
+                    time_interval=time_interval*0.8+1;
+                    break;
+                case 3:
+                    reverse_num+=10;
+                    break;
+            }
+
+               
+        }
+
+        if(i>=buffer.size())
+        break;
+
+
+        mvprintw(0,0,"%d ,%d ",head_pos.first,head_pos.second);
+        mvprintw(1,0,"%d ,%d ",read_direction,check);
+        refresh();
+
+        player1->change_direction(read_direction);
+        player1->load_move_body(head_pos,food_type);
+
+        
+
+        if(player2!=nullptr)
+        {
+            head_pos.first=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+            i+=6;
+            head_pos.second=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+            i+=6;
+            read_direction=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+2));
+            i+=2;
+            check=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+1));
+            i++;
+
+            food_type=0;
+
+            if(check==1)
+            {
+                food_type=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+3));
+                i+=3;
+                food_type+=5;
+
+                if(i>=buffer.size())
+                break;
+
+                if(time_interval%2==1)
+                time_interval=(time_interval-1)/0.8;
+                
+                switch (food_type-6)
+                {
+                    case 0:
+                        time_interval=time_interval*0.8+1;
+                        break;
+                    case 3:
+                        reverse_num+=10;
+                        break;
+                }
+
+                
+            }
+
+            if(i>=buffer.size())
+            break;
+
+            player2->change_direction(read_direction);
+            player2->load_move_body(head_pos,food_type);
+        }
+
+
+        clock_t a,b;
+
+        a=b=clock();
+
+        while(b-a<5000)
+        b=clock();
+
+        
+
+
+
+    }
+
+    game_log.close();
+
+    for(int i=0;i<food_num;i++)
+    random_food();
+
 }
 
 barrier_map::barrier_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,food_num,speed,map_size){
@@ -1086,6 +1362,7 @@ void barrier_map::random_food()
     }
 
     Map[x][y]=1;
+    barrier=make_pair(x,y);
     attron(COLOR_PAIR(4));
     mvprintw(middle.first+x,middle.second+60+y*2,"▓▓");
     attroff(COLOR_PAIR(4));
@@ -1099,12 +1376,167 @@ void barrier_map::random_food()
 
 }
 
+void barrier_map::save_snake_head_data()
+{
+
+    pair<int,int> pos=player1->get_head_pos();
+    std::ofstream output_file("resume",std::ios::app|std::ios_base::binary);
+    //output_file.seekp(0,ios::beg);
+    int direction=player1->get_direction();
+    
+    input_binary_data(6,pos.first,output_file);
+    input_binary_data(6,pos.second,output_file);
+    input_binary_data(2,direction,output_file);
+
+    if(player1->get_eat_food()==0)
+    input_binary_data(1,0,output_file);
+    else
+    {
+        input_binary_data(1,1,output_file);
+        
+        input_binary_data(6,barrier.first,output_file);
+        input_binary_data(6,barrier.second,output_file);
+    }
+
+    output_file.close();
+
+    if(player2!=nullptr)
+    {
+        pos=player2->get_head_pos();
+        std::ofstream output_file("resume",std::ios::app|std::ios_base::binary);
+        direction=player2->get_direction();
+
+        input_binary_data(6,pos.first,output_file);
+        input_binary_data(6,pos.second,output_file);
+        input_binary_data(2,direction,output_file);
+
+        if(player2->get_eat_food()==0)
+        input_binary_data(1,0,output_file);
+        else
+        {
+            input_binary_data(1,1,output_file);
+            input_binary_data(6,barrier.first,output_file);
+            input_binary_data(6,barrier.second,output_file);
+        }
+
+        output_file.close();
+
+    }
+    
+
+
+}
+
+bool barrier_map::load_game(int food_num)
+{
+    std::ifstream game_log;
+    game_log.open("resume",std::ios::binary);
+
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(game_log), {});
+    //mvprintw(0,0,"!");
+    //refresh();
+
+    //if((buffer.size()-18)%11!=0)
+    //return 0;
+
+    //int total_num=18;
+    for(int i=18;i<buffer.size();)
+    {
+        pair<int,int>head_pos;
+        int read_direction;
+        int check;
+        head_pos.first=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+        i+=6;
+        head_pos.second=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+        i+=6;
+        read_direction=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+2));
+        i+=2;
+        check=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+1));
+        i++;
+
+        if(check==1)
+        {
+            pair<int,int> new_barrier;
+            new_barrier.first=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+            i+=6;
+            new_barrier.second=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+            i+=6;
+
+            if(i>=buffer.size())
+            break;
+
+            Map[new_barrier.first][new_barrier.second]=1;   
+        }
+
+        if(i>=buffer.size())
+        break;
+
+
+        mvprintw(0,0,"%d ,%d ",head_pos.first,head_pos.second);
+        mvprintw(1,0,"%d ,%d ",read_direction,check);
+        refresh();
+
+        player1->change_direction(read_direction);
+        player1->load_move_body(head_pos,check);
+
+        
+
+        if(player2!=nullptr)
+        {
+            head_pos.first=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+            i+=6;
+            head_pos.second=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+            i+=6;
+            read_direction=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+2));
+            i+=2;
+            check=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+1));
+            i++;
+
+            if(check==1)
+            {
+                pair<int,int> new_barrier;
+                new_barrier.first=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+                i+=6;
+                new_barrier.second=binary_to_decimal(std::vector<unsigned char>(buffer.begin()+i,buffer.begin()+i+6));
+                i+=6;
+
+                if(i>=buffer.size())
+                break;
+
+                Map[new_barrier.first][new_barrier.second]=1;   
+            }
+
+            if(i>=buffer.size())
+            break;
+
+            player2->change_direction(read_direction);
+            player2->load_move_body(head_pos,check);
+        }
+
+
+        clock_t a,b;
+
+        a=b=clock();
+
+        while(b-a<5000)
+        b=clock();
+
+        
 
 
 
+    }
+
+    game_log.close();
+
+    for(int i=0;i<food_num;i++)
+    random_food();
+}
 
 
-int snake_map::binary_to_decimal(std::vector<unsigned char> data)
+
+/*
+int binary_to_decimal(std::vector<unsigned char> data)
 {
     int r=0;
     for(int i=0;i<data.size();i++)
@@ -1121,7 +1553,10 @@ int snake_map::binary_to_decimal(std::vector<unsigned char> data)
 
 
 }
-/*
+
+
+
+
 void input_binary_data(int digit,int data,std::ofstream &file)
 {
     //output_file << '1';

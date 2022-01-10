@@ -40,6 +40,8 @@ class snake{
         int get_eat_food();
         char * get_body_element();
         void change_body_element(char*);
+        virtual void load_move_body(std::pair<int,int>,int);
+        int get_direction();
         
 
     protected:
@@ -77,6 +79,7 @@ class special_player_snake:public player_snake{
         void eat_point();
         void random_new_pos();
         bool move_body();
+        void load_move_body(std::pair<int,int>,int);
 
     private:
         int invincible=0;
@@ -114,6 +117,7 @@ class special_computer_snake:public computer_snake{
         void eat_point();
         void random_new_pos();
         bool move_body();
+        void load_move_body(std::pair<int,int>,int);
 
     private:
         int invincible=0;

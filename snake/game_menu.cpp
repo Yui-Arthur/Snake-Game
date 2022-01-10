@@ -26,7 +26,9 @@
 
 //#include "python3.8/Python.h"
 //#include <Python.h>
+int binary_to_decimal(std::vector<unsigned char> data);
 void input_binary_data(int digit,int data,std::ofstream &file);
+
 int kbhit()
 {
     int ch = getch();
@@ -126,7 +128,7 @@ void game_menu::initial_menu()
                     if(choice==0)
                     game_setting();                           
                     else if(choice==1)
-                    load_game();
+                    load_game_setting();
                     else if(choice==2)
                     connect_play();    
                     else if(choice==3)
@@ -283,7 +285,7 @@ void game_menu::game_setting()
 
 
                 case 10:
-                    into_game(setting[0],setting[1],setting[2],setting[3],setting[4],setting[5],setting[6],setting[7]);
+                    into_game(setting[0],setting[1],setting[2],setting[3],setting[4],setting[5],setting[6],setting[7],0);
                     return;
 
 
@@ -452,7 +454,7 @@ void game_menu::game_change_setting(int choice,int setting)
     move(0,0);
 }
 
-void game_menu::into_game(int map,int player1,int player1_skin,int player2,int player2_skin,int food_num,int speed,int map_size)
+void game_menu::into_game(int map,int player1,int player1_skin,int player2,int player2_skin,int food_num,int speed,int map_size,int load)
 {
     while(1)
     {
@@ -462,23 +464,33 @@ void game_menu::into_game(int map,int player1,int player1_skin,int player2,int p
         std::pair<int,int> size(20+10*map_size,20+10*map_size);
         char* skin[3]={"💠","💓","💢"};
         
-        std::ofstream output_file("resume",std::ios::binary);
         
-        input_binary_data(1,1,output_file);
-        input_binary_data(3,map,output_file);
-        input_binary_data(2,player1,output_file);
-        input_binary_data(2,player1_skin,output_file);
-        input_binary_data(2,player2,output_file);
-        input_binary_data(2,player2_skin,output_file);
-        input_binary_data(2,food_num,output_file);
-        input_binary_data(2,speed,output_file);
-        input_binary_data(2,map_size,output_file);
+        
+        
 
-        
-        output_file.close();
+        int tmp_food_num=food_num;
+        if(load==1)
+        {
+            food_num=-2;
+        }
+        else
+        {
+            std::ofstream output_file("resume",std::ios::binary);
+            input_binary_data(1,1,output_file);
+            input_binary_data(3,map,output_file);
+            input_binary_data(2,player1,output_file);
+            input_binary_data(2,player1_skin,output_file);
+            input_binary_data(2,player2,output_file);
+            input_binary_data(2,player2_skin,output_file);
+            input_binary_data(2,food_num,output_file);
+            input_binary_data(2,speed,output_file);
+            input_binary_data(2,map_size,output_file);
+            output_file.close();
+        }
 
         if(map==0)
         ptr=new snake_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
+        //ptr=new snake_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,500000,size);
         else if(map==1)
         ptr=new unwall_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
         else if(map==2)
@@ -487,7 +499,8 @@ void game_menu::into_game(int map,int player1,int player1_skin,int player2,int p
         ptr=new special_food_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
 
 
-
+        if(load==1)
+        ptr->load_game(1+2*tmp_food_num),load=0;
 
         ptr->down_counter();
         ptr->game_time();
@@ -541,6 +554,11 @@ void game_menu::print_game_setting_menu()
     mvprintw(40,95,"Food Number         ");
     mvprintw(45,95,"Move Speed          ");
     mvprintw(50,95,"Map size            ");
+
+    mvprintw(19,100,"  ⍐");
+    mvprintw(20,100,"⍇ ⍗ ⍈");
+    mvprintw(29,100,"  🅆");
+    mvprintw(30,100,"🄰 🅂 🄳");
 
     mvprintw(15,115,"Normal");
     mvprintw(20,115,"Player");
@@ -860,23 +878,33 @@ void input_binary_data(int digit,int data,std::ofstream &file)
     return;
 }
 
-void game_menu::load_game()
+void game_menu::load_game_setting()
 {
     std::ifstream game_log;
     game_log.open("resume",std::ios::binary);
     if (game_log.fail()) {
+        attron(COLOR_PAIR(4));
         mvprintw(23,99,"┌──────────────────┐");
-        mvprintw(24,99,"│   No File Exit   │");
+        mvprintw(24,99,"│   No File Exist  │");
         mvprintw(25,99,"└──────────────────┘");
+        attroff(COLOR_PAIR(4));
+        move(0,0);
+        refresh();
+        sleep(1);
     }
     else
     {
         std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(game_log), {});
-        if(buffer.empty())
+        if(buffer.size()<18)
         {
+            attron(COLOR_PAIR(4));
             mvprintw(23,99,"┌──────────────────┐");
-            mvprintw(24,99,"│   No File Exit   │");
+            mvprintw(24,99,"│   No File Exist  │");
             mvprintw(25,99,"└──────────────────┘");
+            attroff(COLOR_PAIR(4));
+            move(0,0);
+            refresh();
+            sleep(1);
         }
         else
         {
@@ -901,9 +929,9 @@ void game_menu::load_game()
             mvprintw(6,0,"%d",speed);
             mvprintw(7,0,"%d",map_size);
 
-            
+            game_log.close();
 
-            into_game(game_mod,player1,player1_skin,player2,player2_skin,food_num,speed,map_size);
+            into_game(game_mod,player1,player1_skin,player2,player2_skin,food_num,speed,map_size,1);
 
         }
     }
@@ -912,7 +940,7 @@ void game_menu::load_game()
     return;
 }
 
-int game_menu::binary_to_decimal(std::vector<unsigned char> data)
+int binary_to_decimal(std::vector<unsigned char> data)
 {
     int r=0;
     for(int i=0;i<data.size();i++)
@@ -926,8 +954,6 @@ int game_menu::binary_to_decimal(std::vector<unsigned char> data)
     }
 
     return r;
-
-
 }
 
 bool game_menu::play_again(snake_map*ptr){

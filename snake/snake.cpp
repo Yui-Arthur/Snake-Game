@@ -156,12 +156,12 @@ void snake::erase_tail()
     }
     
     map_ptr->map_change_point(tail->position.first,tail->position.second,0);
-    std::ofstream output_file("resume",std::ios::in|std::ios_base::binary);
-    output_file.seekp(30+4*(tail->position.first-1)*(map_ptr->get_width())+4*(tail->position.second-1),ios::beg);
-    input_binary_data(4,0,output_file);
+    //std::ofstream output_file("resume",std::ios::in|std::ios_base::binary);
+    //output_file.seekp(30+4*(tail->position.first-1)*(map_ptr->get_width())+4*(tail->position.second-1),ios::beg);
+    //input_binary_data(4,0,output_file);
     //output_file.seekp(0,ios::beg);
     //output_file<<0;
-    output_file.close();
+    //output_file.close();
 
 
 }
@@ -181,6 +181,21 @@ void snake::eat_point()
     head=new snake_body(head->position.first+move_xy[direction][0],head->position.second+move_xy[direction][1]);
     head->next=tmp;
     tmp->previous=head;
+
+    if((tail->position.first+tail->position.second)%2)
+    {
+        attron(COLOR_PAIR(1));
+        mvprintw(map_ptr->middle.first+tail->position.first,map_ptr->middle.second+60+2*tail->position.second,"%s",body_element);
+        attroff(COLOR_PAIR(1));
+    }
+    else
+    {
+        attron(COLOR_PAIR(2));
+        mvprintw(map_ptr->middle.first+tail->position.first,map_ptr->middle.second+60+2*tail->position.second,"%s",body_element);
+        attroff(COLOR_PAIR(2));
+    }
+    
+    map_ptr->map_change_point(tail->position.first,tail->position.second,2);
     
     return;
 }
@@ -213,4 +228,76 @@ char * snake::get_body_element()
 void snake::change_body_element(char *c)
 {
     body_element=c;
+}
+
+
+void snake::load_move_body(std::pair<int,int> head_pos,int food_type)
+{
+    
+    if(eat_food_type==0)
+    {
+        map_ptr->map_change_point(tail->position.first,tail->position.second,0);
+        if((tail->position.first+tail->position.second)%2)
+        {
+            attron(COLOR_PAIR(1));
+            mvprintw(map_ptr->middle.first+tail->position.first,map_ptr->middle.second+60+2*tail->position.second,"  ");
+            attroff(COLOR_PAIR(1));
+        }
+        else
+        {
+            attron(COLOR_PAIR(2));
+            mvprintw(map_ptr->middle.first+tail->position.first,map_ptr->middle.second+60+2*tail->position.second,"  ");
+            attroff(COLOR_PAIR(2));
+        }
+        
+        snake_body *current=tail;
+
+        while(current->previous!=nullptr)
+        {
+            current->position=current->previous->position;
+            current=current->previous;
+        }
+
+        mvprintw(3,0,"%d ,%d ",tail->position.first,tail->position.second);
+        refresh();
+
+        head->position.first=head_pos.first;
+        head->position.second=head_pos.second;
+    }
+    else
+    {
+        mvprintw(3,0,"     ");
+        length++;
+        refresh();
+        eat_food_type=0;
+        snake_body *tmp=head;
+        head=new snake_body(head_pos.first,head_pos.second);
+        head->next=tmp;
+        tmp->previous=head;
+
+    }
+
+    map_ptr->map_change_point(head->position.first,head->position.second,2);
+
+    if((head->position.first+head->position.second)%2)
+    {
+        attron(COLOR_PAIR(1));
+        mvprintw(map_ptr->middle.first+head->position.first,map_ptr->middle.second+60+2*head->position.second,"%s",body_element);
+        attroff(COLOR_PAIR(1));
+    }
+    else
+    {
+        attron(COLOR_PAIR(2));
+        mvprintw(map_ptr->middle.first+head->position.first,map_ptr->middle.second+60+2*head->position.second,"%s",body_element);
+        attroff(COLOR_PAIR(2));
+    }
+
+    eat_food_type=food_type;
+    
+
+}
+
+int snake::get_direction()
+{
+    return direction;
 }

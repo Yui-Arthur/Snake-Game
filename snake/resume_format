@@ -12,7 +12,7 @@ speed(2 bit)         00 slow     01 middle   10 fast
 map_size(2 bit)      00 20*20    01 30*30    10 40*40    11 50*50
 
 18 bit
-
+X
 map info
 
 map_width(6 bit)
@@ -21,11 +21,30 @@ map_height(6 bit)
 30 bit
 
 map[][](4 bit)
+X
 
-1
-010
-00
-10
-01
-00
 
+head pos 6+6 bit
+diraction 2 bit 
+check eat 1 bit 
+
+barrier
+head pos 6+6 bit
+diraction 2 bit 
+check eat 1 bit if 1 -> barrier pos 6+6 bit
+
+
+barrier
+head pos 6+6 bit
+diraction 2 bit 
+check eat 1 bit if 1 -> food_type 3 bit 
+
+100000000000000000
+1001 1010 00 0 
+1000 1010 00 0
+0111 1010 00 0
+0110 1010 00 0
+0101 1010 00 0
+0100 1010 00 0
+0011 1010 00 0
+0010 1010 00 0

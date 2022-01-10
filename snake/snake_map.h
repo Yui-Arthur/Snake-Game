@@ -29,9 +29,11 @@ class snake_map{
         std::pair<int,int> middle;
         void down_counter();
         //void input_binary_data(int digit,int data,std::ofstream &file);
-        int binary_to_decimal(std::vector<unsigned char> data);
-        void save_data();
-        void change_snake_head_data();
+        //int binary_to_decimal(std::vector<unsigned char> data);
+        //void save_data();
+        virtual void save_snake_head_data();
+        virtual bool load_game(int);
+        void load_player_move(std::pair<int,int>,int);
      
         
 
@@ -55,6 +57,7 @@ class unwall_map:public snake_map{
     public:
         unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void print();
+        //bool load_game(int);
 
 };
 
@@ -73,13 +76,15 @@ class special_food_map:public snake_map{
         void player_control();
         void reverse_control();
         void check_food_type();
+        void save_snake_head_data();
+        bool load_game(int);
 
     private:
         int reverse_num=0;
 
 };
 
-class connection_special_map:public unwall_map{
+class connection_special_map:public special_food_map{
     public:
         connection_special_map(int player_1,char * player1_skin,int player_2,char* player_2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void player_control();
@@ -89,9 +94,14 @@ class barrier_map:public snake_map{
     public:
         barrier_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void random_food();
+        void save_snake_head_data();
+        bool load_game(int);
+
+    private:
+        std::pair<int,int> barrier;
 };
 
-class connection_barrier_map:public unwall_map{
+class connection_barrier_map:public barrier_map{
     public:
         connection_barrier_map(int player_1,char * player1_skin,int player2,char* player_2_skin,int food_num,int speed,std::pair<int,int> map_size);
         void player_control();
