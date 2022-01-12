@@ -27,6 +27,13 @@ class game_menu{
         void load_game_setting();
         bool play_again(snake_map*);
         void switch_picture(int choice);
+
+        int thread_func(int &sock);
+        void game_server_setting(int);
+        void game_client_setting(int);
+        void online_into_game(int,int,int,int,int,int,int,int,int,int);
+        void level_into_game(int,int,int,int);
+        void into_next_level();
     
 
 };

@@ -22,6 +22,7 @@
 #include <ncurses.h>
 #include <thread>
 #include <future>
+#include <fcntl.h>
 
 
 //#include "python3.8/Python.h"
@@ -187,7 +188,7 @@ void game_menu::game_setting()
     int choice=0;
     int state=0;
     int setting[8]={0};
-    int setting_limit[8]={3,1,2,2,2,3,2,3};
+    int setting_limit[8]={4,1,2,2,2,3,2,3};
     //memset(setting,0,sizeof(setting));
     
 
@@ -251,8 +252,22 @@ void game_menu::game_setting()
                     if(setting[choice]<0)
                     setting[choice]=setting_limit[choice];
 
-                    if(choice==4&&setting[3]==0)
+                    if((choice==4&&setting[3]==0)||(setting[0]==4&&choice>=5))
                     break;
+
+                    if(choice==0&&setting[0]!=4)
+                    {
+                        game_change_setting(5,setting[5]);
+                        game_change_setting(6,setting[6]);
+                        game_change_setting(7,setting[7]);
+                    }
+                    else if(choice==0&&setting[0]==4)
+                    {
+                        mvprintw(40, 115, "❔      ");
+                        mvprintw(45, 115, "❔      ");
+                        mvprintw(50, 115, "❔      ");
+                    }
+                    
 
                     if(choice==3&&setting[3]!=0)
                     game_change_setting(4,setting[4]);
@@ -268,8 +283,21 @@ void game_menu::game_setting()
                     if(setting[choice]>setting_limit[choice])
                     setting[choice]=0;
 
-                    if(choice==4&&setting[3]==0)
+                    if((choice==4&&setting[3]==0)||(setting[0]==4&&choice>=5))
                     break;
+
+                    if(choice==0&&setting[0]!=4)
+                    {
+                        game_change_setting(5,setting[5]);
+                        game_change_setting(6,setting[6]);
+                        game_change_setting(7,setting[7]);
+                    }
+                    else if(choice==0&&setting[0]==4)
+                    {
+                        mvprintw(40, 115, "❔      ");
+                        mvprintw(45, 115, "❔      ");
+                        mvprintw(50, 115, "❔      ");
+                    }
 
                     if(choice==3&&setting[3]!=0)
                     game_change_setting(4,setting[4]);
@@ -285,7 +313,10 @@ void game_menu::game_setting()
 
 
                 case 10:
+                    if(setting[0]!=4)
                     into_game(setting[0],setting[1],setting[2],setting[3],setting[4],setting[5],setting[6],setting[7],0);
+                    else
+                    level_into_game(setting[1],setting[2],setting[3],setting[4]);
                     return;
 
 
@@ -329,17 +360,21 @@ void game_menu::game_change_setting(int choice,int setting)
             switch (setting)
             {
                 case 0:
-                    mvprintw(15,115,"Normal  ");
+                    mvprintw(15,115,"Normal   ");
                     break;
                 case 1:
-                    mvprintw(15,115,"Unwall  ");
+                    mvprintw(15,115,"Unwall   ");
                     break;
                 case 2:
-                    mvprintw(15,115,"Barrier ");
+                    mvprintw(15,115,"Barrier  ");
                     break;
                 case 3:
-                    mvprintw(15,115,"Special ");
+                    mvprintw(15,115,"Special  ");
                     break;
+                case 4:
+                    mvprintw(15,115,"Challenge");
+                    break;
+                
             }
             break;
         case 1:
@@ -399,16 +434,16 @@ void game_menu::game_change_setting(int choice,int setting)
             switch (setting)
             {
                 case 0:
-                    mvprintw(40,115,"1");
+                    mvprintw(40,115,"1 ");
                     break;
                 case 1:
-                    mvprintw(40,115,"3");
+                    mvprintw(40,115,"3 ");
                     break;
                 case 2:
-                    mvprintw(40,115,"5");
+                    mvprintw(40,115,"5 ");
                     break;
                 case 3:
-                    mvprintw(40,115,"7");
+                    mvprintw(40,115,"7 ");
                     break;
             }
             break;
@@ -490,7 +525,6 @@ void game_menu::into_game(int map,int player1,int player1_skin,int player2,int p
 
         if(map==0)
         ptr=new snake_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
-        //ptr=new snake_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,500000,size);
         else if(map==1)
         ptr=new unwall_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size);
         else if(map==2)
@@ -500,7 +534,7 @@ void game_menu::into_game(int map,int player1,int player1_skin,int player2,int p
 
 
         if(load==1)
-        ptr->load_game(1+2*tmp_food_num),load=0;
+        ptr->load_game(1+2*tmp_food_num),load=0,food_num=tmp_food_num;
 
         ptr->down_counter();
         ptr->game_time();
@@ -649,13 +683,13 @@ char* game_menu::get_local_ipAddr()
     int err = connect(sock, (const struct sockaddr*)&serv, sizeof(serv));
     if (err < 0)
     {
-        mvprintw(20,95,"Error number: %s. Error message:%s",errno,strerror(errno));
+        //mvprintw(20,95,"Error number: %s. Error message:%s",errno,strerror(errno));
         return "";
     }
 
     struct sockaddr_in name;
     socklen_t namelen = sizeof(name);
-    err = getsockname(sock, (struct sockaddr*)&name, &namelen);
+    //err = getsockname(sock, (struct sockaddr*)&name, &namelen);
     char buffer[100];
     const char* p=inet_ntop(AF_INET, &name.sin_addr, buffer, 80);
 
@@ -669,12 +703,13 @@ char* game_menu::get_local_ipAddr()
         mvprintw(19,99,"│                  │");
         mvprintw(20,99,"└──────────────────┘");
         mvprintw(19,102,"%s",buffer);
+        close(sock);
 
         return buffer;
     } 
     else
     {
-        mvprintw(20,95,"Error number: %s. Error message: %s",errno,strerror(errno));
+        //mvprintw(20,95,"Error number: %s. Error message: %s",errno,strerror(errno));
         return "";
     }
     
@@ -689,13 +724,18 @@ char* game_menu::get_local_ipAddr()
 void game_menu::connect_play()
 {
 
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    int client_sock=-1;
+    int server_sock=-2;
+    std::future<int> server_thread = std::async(&game_menu::thread_func,this,std::ref(sock));
+
     mvprintw(20,100,"                  ");
     mvprintw(25,100,"                  ");
     mvprintw(30,100,"                  ");
     mvprintw(35,100,"                  ");
     mvprintw(40,100,"                  ");
 
-    get_local_ipAddr();
+    
 
     mvprintw(22,98,"Connect with Your Friends");
     mvprintw(23,99,"┌──────────────────┐");
@@ -706,6 +746,12 @@ void game_menu::connect_play()
     mvprintw(27,105,"Connect");
     mvprintw(32,105,"Exit");
     move(0,0);
+    refresh();
+
+    sleep(1);
+    if(server_sock==-2)
+    get_local_ipAddr();
+
     int choice=0;
     int state=0;
 
@@ -719,6 +765,25 @@ void game_menu::connect_play()
 
     while(1)
     {
+        
+
+        if (server_sock!=-1&&server_sock!=-2)
+        {
+            
+            mvprintw(10, 0, "leave");
+            game_server_setting(server_sock);
+            print_initail_menu();
+        }
+        else if (client_sock!=-1)
+        {
+
+            
+            mvprintw(5,0,"in,%d",client_sock);
+            refresh();
+            game_client_setting(client_sock);
+            print_initail_menu();
+        }
+
         if(kbhit())
         {
             //printw("%d",getch());
@@ -766,14 +831,27 @@ void game_menu::connect_play()
                         if(input_addr.empty())
                         break;
 
-                        int sock=socket_connect(input_addr);
-                        if(sock!=-1)
-                        mvprintw(0,0,"success!");
-                        break;
+                        client_sock=socket_connect(input_addr);
+                        if(client_sock!=-1)
+                        {
+                            mvprintw(0,0,"success!");                            
+                            refresh();
+                            break;
+                        }
+                        else
+                        {
+                            mvprintw(0,0,"fail");
+                            break;
+                        }
+                        
 
                     }
                     else if(choice==1)
-                    return;
+                    {
+                        close(sock);
+                        //close(sock);
+                        return;
+                    }
                 
                 case KEY_BACKSPACE:
 
@@ -809,6 +887,7 @@ void game_menu::connect_play()
 
         if(b-a>500000)
         {
+
             if(state)
             mvprintw(27+5*choice,100,"►");
             else
@@ -818,6 +897,9 @@ void game_menu::connect_play()
             refresh();
             state=!state;
             a=b=clock();
+
+            if(server_sock==-2&&server_thread.wait_for(std::chrono::nanoseconds(1))==std::future_status::ready)
+            server_sock=server_thread.get();
         }
 
     
@@ -842,16 +924,43 @@ int game_menu::socket_connect(std::vector<char> input_addr)
     addr.sin_port=htons(1102);
     addr.sin_addr.s_addr=inet_addr(&input_addr[0]);
 
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags|O_NONBLOCK);
+
+
     int r=connect(sock,(struct sockaddr*)&addr,sizeof(addr));
-    //"61.227.224.135"
-    if(r==-1)
-    {
-        perror("fail");
-        return -1;
+
+    if (r < 0) {  
+        
+        if (errno != EINPROGRESS && errno != EWOULDBLOCK) 
+            return -1; 
+
+        struct timeval tv;
+        fd_set wset;
+
+        tv.tv_sec = 3;
+        tv.tv_usec = 0;
+
+        FD_ZERO(&wset);
+        FD_SET(sock, &wset); // Add socket to select to listen
+
+        r = select(sock + 1, NULL, &wset, NULL, &tv);
+        if (r < 0) {
+            return -1; // error
+        } else if (0 ==r) { 
+            return -1;  // overtime
+        }
+        mvprintw(3,0,"!");
+        refresh();
+        
+       //return -1;
+
     }
 
+    fcntl(sock,F_SETFL,flags & ~O_NONBLOCK); 
+
     //mvprintw(0,0,"!");
-    return r;
+    return sock;
 
 }
 
@@ -1134,7 +1243,559 @@ void game_menu::switch_picture(int choice)
                 
               
             break;
+        case 4:
+
+                mvprintw(17, 142, "    All Game Mode ❕   ");
+                mvprintw(18, 142, "                       ");
+                mvprintw(19, 142, "       10 Level   🚩   ");
+                mvprintw(20, 142, "                       ");
+                mvprintw(21, 142, "     Eat   Food   🍐   ");
+                mvprintw(22, 142, "     Wait  Time   ⏰   ");
+                mvprintw(23, 142, "     Limit Step   👣   ");
+                mvprintw(27, 140, "     ⚠  Can't Save ⚠         ");
+                mvprintw(29, 140, "                            ");
+                mvprintw(31, 140, "                            ");
+                mvprintw(33, 140, "                            ");
+
+
+                break;
     }
     refresh();
     move(0,0);
+}
+
+
+int game_menu::thread_func(int &sock)
+{
+    //int sock = socket(AF_INET, SOCK_STREAM, 0);
+    
+
+    struct sockaddr_in serverInfo;
+    if (sock == -1)
+    {
+        mvprintw(0,10,"sock error");
+        return -1;
+    }
+
+    bzero(&serverInfo, sizeof(serverInfo));
+    serverInfo.sin_family = PF_INET;
+    serverInfo.sin_addr.s_addr = htonl(INADDR_ANY);
+    serverInfo.sin_port = htons(1102);
+    int r=bind(sock, (struct sockaddr *)&serverInfo, sizeof(serverInfo));
+    
+    if (r == -1)
+    {
+        mvprintw(0,10,"bind error");
+        return -1;
+    }
+    
+
+    if (listen(sock, SOMAXCONN) == -1)
+    {
+        mvprintw(0,10,"listen error");
+        return -1;
+    }
+
+    fd_set rfd; 
+    struct timeval tv;
+    tv.tv_sec=1;
+    tv.tv_usec=0;
+    //int flags = fcntl(sock, F_GETFL, 0);
+    //fcntl(sock, F_SETFL, flags|O_NONBLOCK);
+    
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags|O_NONBLOCK);
+
+    while(1)
+    {
+
+        int client_socket_fd = accept(sock, NULL, NULL);
+        if (client_socket_fd == -1) {
+            if (errno == EWOULDBLOCK) 
+            {
+                //printf("No pending connections; sleeping for one second.\n");
+                sleep(1);
+            }
+            else 
+            return -1;
+
+        } 
+        else 
+        {
+            mvprintw(0, 0, "I am server!");
+            return client_socket_fd;
+        }
+
+
+    }
+    /*
+    struct sockaddr_in clientInfo;
+    socklen_t addrlen = sizeof(clientInfo);
+    int forClientSockfd = accept(sock, (struct sockaddr *)&clientInfo, &addrlen);
+    if (forClientSockfd < 0)
+    {
+        mvprintw(0, 0, "fail!!");
+        return -1;
+    }
+    else
+    {
+        mvprintw(0, 0, "I am server!");
+        return forClientSockfd;
+    }
+    */
+}
+
+
+void game_menu::game_server_setting(int sock)
+{
+    mvprintw(17, 105, "                        ");
+    mvprintw(18, 99, "                         ");
+    mvprintw(19, 99, "                         ");
+    mvprintw(20, 99, "                         ");
+    mvprintw(22, 98, "                         ");
+    mvprintw(23, 99, "                         ");
+    mvprintw(24, 99, "                         ");
+    mvprintw(25, 99, "                         ");
+    mvprintw(27, 100, "                        ");
+    mvprintw(27, 105, "                        ");
+    mvprintw(32, 105, "                        ");
+    print_game_setting_menu();
+    //refresh();
+    //mvprintw(25, 115, "Player");
+    mvprintw(30, 115, "Player");
+    mvprintw(35, 115, "💠💠💠");
+    refresh();
+
+    int choice = 0;
+    int state = 0;
+    int setting[8] = {0};
+    int setting_limit[8] = {3, 0,2, 0,2, 3, 2, 3};
+    char online_cho[10]; // key ... choice, state
+    // memset(setting,0,sizeof(setting));
+
+    struct timeval timeout;
+    timeout.tv_sec=0;
+    timeout.tv_usec=1;
+
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) == -1)
+    {
+        perror("setsockopt failed");
+        return;
+    }
+    clock_t a, b;
+
+    a = b = clock();
+
+    while (1)
+    {
+
+        if (kbhit())
+        {
+            mvprintw(5, 0, "hi");
+            // int cho = getch();
+            // printw("%d", getch());
+            switch (getch())
+            {
+                case KEY_UP:
+                    mvprintw(15 + 5 * choice, 85, " ");
+                    mvprintw(15 + 5 * choice, 110, " ");
+                    mvprintw(15 + 5 * choice, 125, " ");
+
+                    choice--;
+                    if (choice < 0)
+                        choice = 7;
+
+                    a = b = clock();
+                    state = 0;
+
+                    mvprintw(15 + 5 * choice, 85, "►");
+                    mvprintw(15 + 5 * choice, 110, "◅");
+                    mvprintw(15 + 5 * choice, 125, "▻");
+                    move(0, 0);
+                    refresh();
+
+                    online_cho[0] = '0';
+
+                    break;
+
+                case KEY_DOWN:
+                    mvprintw(15 + 5 * choice, 85, " ");
+                    mvprintw(15 + 5 * choice, 110, " ");
+                    mvprintw(15 + 5 * choice, 125, " ");
+
+                    choice++;
+                    if (choice > 7)
+                        choice = 0;
+
+                    a = b = clock();
+                    state = 0;
+
+                    mvprintw(15 + 5 * choice, 85, "►");
+                    mvprintw(15 + 5 * choice, 110, "◅");
+                    mvprintw(15 + 5 * choice, 125, "▻");
+                    move(0, 0);
+                    refresh();
+
+                    online_cho[0] = '1';
+
+                    break;
+
+                case KEY_LEFT:
+                    setting[choice]--;
+                    if (setting[choice] < 0)
+                        setting[choice] = setting_limit[choice];
+
+
+
+                    if(choice!=1&&choice!=3)
+                    game_change_setting(choice, setting[choice]);
+
+                    online_cho[0] = '2';
+
+                    break;
+
+                case KEY_RIGHT:
+                    setting[choice]++;
+                    if (setting[choice] > setting_limit[choice])
+                        setting[choice] = 0;
+
+
+                    if(choice!=1&&choice!=3)
+                    game_change_setting(choice, setting[choice]);
+
+                    online_cho[0] = '3';
+
+                    break;
+
+                case 27:
+                    online_cho[0] = '4';
+                    return;
+
+                case 10:
+                    online_cho[0] = '5';
+                    int sendsu = send(sock, online_cho, sizeof(online_cho), 0);
+                    if (sendsu == -1)
+                    {
+                        mvprintw(7, 0, "Could not send to server!");
+                        return;
+                    }
+                    online_into_game(setting[0], 0,setting[2],1, setting[4], setting[5], setting[6], setting[7],sock,1);
+                    return;
+            }
+            int sendsu = send(sock, online_cho, sizeof(online_cho), 0);
+            if (sendsu == -1)
+            {
+                mvprintw(7, 0, "Could not send to server!");
+                return;
+            }
+        }
+
+        b = clock();
+
+        if (b - a > 500000)
+        {
+            if (state)
+                mvprintw(15 + 5 * choice, 85, "►");
+            else
+                mvprintw(15 + 5 * choice, 85, " ");
+
+            move(0, 0);
+            refresh();
+            state = !state;
+            a = b = clock();
+        }
+    }
+}
+
+
+void game_menu::game_client_setting(int sock)
+{
+    mvprintw(17, 105, "                        ");
+    mvprintw(18, 99, "                         ");
+    mvprintw(19, 99, "                         ");
+    mvprintw(20, 99, "                         ");
+    mvprintw(22, 98, "                         ");
+    mvprintw(23, 99, "                         ");
+    mvprintw(24, 99, "                         ");
+    mvprintw(25, 99, "                         ");
+    mvprintw(27, 100, "                        ");
+    mvprintw(27, 105, "                        ");
+    mvprintw(32, 105, "                        ");
+    print_game_setting_menu();
+    //refresh();
+    //mvprintw(25, 115, "Player");
+    mvprintw(30, 115, "Player");
+    mvprintw(35, 115, "💠💠💠");
+    refresh();
+
+    int choice = 0;
+    int state = 0;
+    int setting[8] = {0};
+    int setting_limit[8] = {3, 0,2, 0,2, 3, 2, 3};
+    // memset(setting,0,sizeof(setting));
+
+
+    struct timeval timeout;
+    timeout.tv_sec=0;
+    timeout.tv_usec=1;
+
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) == -1)
+    {
+        perror("setsockopt failed");
+        return;
+    }
+
+    clock_t a, b;
+
+    a = b = clock();
+
+    while (1)
+    {
+        char recvBuf[1];
+        int recvsu = recv(sock, recvBuf, sizeof(recvBuf), 0);
+        mvprintw(10,0,"%d",recvsu);
+        refresh();
+        if(recvsu!=-1)
+        {
+            switch (recvBuf[0])
+            {
+                case '0':
+                    mvprintw(15 + 5 * choice, 85, " ");
+                    mvprintw(15 + 5 * choice, 110, " ");
+                    mvprintw(15 + 5 * choice, 125, " ");
+
+                    choice--;
+                    if (choice < 0)
+                        choice = 7;
+
+                    a = b = clock();
+                    state = 0;
+
+                    mvprintw(15 + 5 * choice, 85, "►");
+                    mvprintw(15 + 5 * choice, 110, "◅");
+                    mvprintw(15 + 5 * choice, 125, "▻");
+                    move(0, 0);
+                    refresh();
+
+                    
+
+                    break;
+
+                case '1':
+                    mvprintw(15 + 5 * choice, 85, " ");
+                    mvprintw(15 + 5 * choice, 110, " ");
+                    mvprintw(15 + 5 * choice, 125, " ");
+
+                    choice++;
+                    if (choice > 7)
+                        choice = 0;
+
+                    a = b = clock();
+                    state = 0;
+
+                    mvprintw(15 + 5 * choice, 85, "►");
+                    mvprintw(15 + 5 * choice, 110, "◅");
+                    mvprintw(15 + 5 * choice, 125, "▻");
+                    move(0, 0);
+                    refresh();
+
+
+                    break;
+
+                case '2':
+                    setting[choice]--;
+                    if (setting[choice] < 0)
+                        setting[choice] = setting_limit[choice];
+
+
+
+                    if(choice!=1&&choice!=3)
+                    game_change_setting(choice, setting[choice]);
+
+                    break;
+
+                case '3':
+                    setting[choice]++;
+                    if (setting[choice] > setting_limit[choice])
+                        setting[choice] = 0;
+
+
+                    if(choice!=1&&choice!=3)
+                    game_change_setting(choice, setting[choice]);
+
+                    break;
+
+                case '4':
+
+                    return;
+
+                case '5':
+                    online_into_game(setting[0], 0,setting[2],1, setting[4], setting[5], setting[6], setting[7],sock,2);
+                    return;
+            }
+        }
+        
+
+        b = clock();
+
+        mvprintw(1,0,"%d",b-a);
+
+        if (b - a > 4000)
+        {
+            if (state)
+                mvprintw(15 + 5 * choice, 85, "►");
+            else
+                mvprintw(15 + 5 * choice, 85, " ");
+
+            move(0, 0);
+            refresh();
+            state = !state;
+            a = b = clock();
+        }
+    }
+
+}
+
+
+void game_menu::online_into_game(int map,int player1,int player1_skin,int player2,int player2_skin,int food_num,int speed,int map_size,int sock,int my)
+{
+    while(1)
+    {
+        attron(COLOR_PAIR(3));
+        snake_map *ptr;
+        //speed=50000+20000*(2-speed);
+        std::pair<int,int> size(20+10*map_size,20+10*map_size);
+        char* skin[3]={"💠","💓","💢"};
+        
+        
+        
+        
+
+        
+
+        if(map==0)
+        ptr=new connection_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size,sock,my);
+        //ptr=new snake_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,500000,size);
+        else if(map==1)
+        ptr=new connection_unwall_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size,sock,my);
+        else if(map==2)
+        ptr=new connection_barrier_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size,sock,my);
+        else
+        ptr=new connection_special_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size,sock,my);
+
+
+
+        ptr->down_counter();
+        ptr->game_time();
+
+        if(play_again(ptr)==0)
+        return;
+    }
+
+    
+}
+
+
+void game_menu::level_into_game(int player1,int player1_skin,int player2,int player2_skin)
+{
+    int level_setting[11][4] =    {{0, 0, 0, 0}, {0, 1, 0, 0}, {2, 45, 3, 0}, {1, 10, 1, 0}, {3, 45, 3, 0}, {1, 1, 3, 0}, {2, 65, 2, 1}, {3, 5, 3, 2}, {2, 1, 0, 2}, {3, 50, 1, 2}, {1, 3, 1, 2}};
+    int level_requirment[11][3] = {{0, 0, 0},   {0, 10, 0},     {60, 0, 0},   {0, 10, 200},  {30, 0, 0},     {0, 20, 0},   {120, 0, 0},  {0, 30, 999},  {0, 25, 0},   {0, 20, 0}, {0, 99, 0}};
+    //int level_requirment[11][3] = {{1, 0, 0},   {1, 0, 0},     {1, 0, 0},   {1, 0, 200},  {1, 0, 0},     {1, 0, 0},   {1, 0, 0},  {1, 0, 999},  {0, 5 ,0},   {0, 5, 0}, {0, 5, 0}};
+   
+    char *skin[3] = {"💠", "💓", "💢"};
+
+    while(1)
+    {
+        attron(COLOR_PAIR(3));
+        snake_map *ptr;
+
+        for(int level_num=1;level_num<11;level_num++)
+        {
+
+
+
+            int map=level_setting[level_num][0];
+            int food_num=level_setting[level_num][1];
+            std::pair<int, int> size(20 + 10 * level_setting[level_num][2], 20 + 10 * level_setting[level_num][2]);
+            int speed=level_setting[level_num][3];
+
+            
+            if(map==0)
+            ptr= new level_snake_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size,level_requirment[level_num],level_num);
+            else if(map==1)
+            ptr = new level_unwall_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size,level_requirment[level_num],level_num);
+            else if(map==2)
+            ptr = new level_barrier_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size,level_requirment[level_num],level_num);
+            else 
+            ptr = new level_special_food_map(player1,skin[player1_skin],player2,skin[player2_skin],1+2*food_num,50000+20000*(2-speed),size,level_requirment[level_num],level_num);
+            
+
+            ptr->down_counter();
+            ptr->game_time();
+
+            if(ptr->get_width()!=-1)
+            break;
+
+            into_next_level();
+            
+
+        }
+
+        while (1)
+        {
+            int rel = getch();
+            if (rel == 10 || rel == 27)
+                break;;
+        }
+
+
+        if (play_again(ptr) == 0)
+        return;
+    }
+
+
+}
+
+
+void game_menu::into_next_level()
+{
+    attron(COLOR_PAIR(3));
+
+    for (int i = 0; i < 200; i++)
+    {
+        for (int j = 0; j < 250; j++)
+            mvprintw(i, j, " ");
+    }
+
+    int a = 20, b = 60, t = 200 * 1000;
+
+    mvprintw(a, b,     "  ▓▓          ▓▓▓▓▓▓▓▓▓▓  ▓▓      ▓▓  ▓▓▓▓▓▓▓▓▓▓  ▓▓              ▓▓      ▓▓  ▓▓▓▓▓▓▓▓   ");
+    move(0, 0);
+    refresh();
+    usleep(t);
+    mvprintw(a + 1, b, "  ▓▓          ▓▓          ▓▓      ▓▓  ▓▓          ▓▓              ▓▓      ▓▓  ▓▓      ▓▓ ");
+    move(0, 0);
+    refresh();
+    usleep(t);
+    mvprintw(a + 2, b, "  ▓▓          ▓▓▓▓▓▓      ▓▓      ▓▓  ▓▓▓▓▓▓      ▓▓              ▓▓      ▓▓  ▓▓▓▓▓▓▓▓   ");
+    move(0, 0);
+    refresh();
+    usleep(t);
+    mvprintw(a + 3, b, "  ▓▓          ▓▓          ▓▓      ▓▓  ▓▓          ▓▓              ▓▓      ▓▓  ▓▓         ");
+    move(0, 0);
+    refresh();
+    usleep(t);
+    mvprintw(a + 4, b, "  ▓▓          ▓▓            ▓▓  ▓▓    ▓▓          ▓▓              ▓▓      ▓▓  ▓▓         ");
+    move(0, 0);
+    refresh();
+    usleep(t);
+    mvprintw(a + 5, b, "  ▓▓          ▓▓            ▓▓  ▓▓    ▓▓          ▓▓              ▓▓      ▓▓  ▓▓         ");
+    move(0, 0);
+    refresh();
+    usleep(t);
+    mvprintw(a + 6, b, "  ▓▓▓▓▓▓▓▓▓▓  ▓▓▓▓▓▓▓▓▓▓      ▓▓      ▓▓▓▓▓▓▓▓▓▓  ▓▓▓▓▓▓▓▓▓▓        ▓▓▓▓▓▓    ▓▓         ");
+
+    move(0, 0);
+    refresh();
+    usleep(t * 3);
 }

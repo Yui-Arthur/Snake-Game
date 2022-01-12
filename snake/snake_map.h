@@ -16,7 +16,7 @@ class snake_map{
         virtual bool player_move_body();
         void player_erase_tail();
         void player_change_direction(int,int);
-        void game_time();
+        virtual void game_time();
         virtual void player_control();
         int get_width();
         int get_height();
@@ -49,8 +49,15 @@ class snake_map{
 
 class connection_map:public snake_map{
     public:
-        connection_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size);
+        connection_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size,int s,int my);
+        void game_time();
         void player_control();
+        void recv_player_control();
+
+    private:
+        int sock;
+        int my_snake;
+        int connector_snake;
 };
 
 class unwall_map:public snake_map{
@@ -63,8 +70,15 @@ class unwall_map:public snake_map{
 
 class connection_unwall_map:public unwall_map{
     public:
-        connection_unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size);
+        connection_unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size,int s,int my);
+        void game_time();
         void player_control();
+        void recv_player_control();
+
+    private:
+        int sock;
+        int my_snake;
+        int connector_snake;
 };
 
 class special_food_map:public snake_map{
@@ -86,8 +100,15 @@ class special_food_map:public snake_map{
 
 class connection_special_map:public special_food_map{
     public:
-        connection_special_map(int player_1,char * player1_skin,int player_2,char* player_2_skin,int food_num,int speed,std::pair<int,int> map_size);
+        connection_special_map(int player_1,char * player1_skin,int player_2,char* player_2_skin,int food_num,int speed,std::pair<int,int> map_size,int s,int my);
+        void game_time();
         void player_control();
+        void recv_player_control();
+
+    private:
+        int sock;
+        int my_snake;
+        int connector_snake;
 };
 
 class barrier_map:public snake_map{
@@ -103,8 +124,60 @@ class barrier_map:public snake_map{
 
 class connection_barrier_map:public barrier_map{
     public:
-        connection_barrier_map(int player_1,char * player1_skin,int player2,char* player_2_skin,int food_num,int speed,std::pair<int,int> map_size);
+        connection_barrier_map(int player_1,char * player1_skin,int player2,char* player_2_skin,int food_num,int speed,std::pair<int,int> map_size,int s,int my);
+        void game_time();
         void player_control();
+        void recv_player_control();
+
+    private:
+        int sock;
+        int my_snake;
+        int connector_snake;
+};
+
+
+
+class level_snake_map:public snake_map{
+    public:
+        level_snake_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size, int *requirment,int l);
+        bool player_move_body() override;
+        void print_level_requirment() ;
+    private:
+        int *re;
+        int footprint=0;
+        int level;
+};
+class level_unwall_map:public unwall_map{
+    public:
+        level_unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size, int *requirment,int l);
+        bool player_move_body() override;
+        void print_level_requirment() ;
+    private:
+        int *re;
+        int footprint=0;
+        int level;
+};
+
+class level_barrier_map:public barrier_map{
+    public:
+        level_barrier_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size, int *requirment,int l);
+        bool player_move_body() override;
+        void print_level_requirment() ;
+    private:
+        int *re;
+        int footprint=0;
+        int level;
+};
+
+class level_special_food_map:public special_food_map{
+    public:
+        level_special_food_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size, int *requirment,int l);
+        bool player_move_body() override;
+        void print_level_requirment();
+    private:
+        int *re;
+        int footprint=0;
+        int level;
 };
 
 #endif

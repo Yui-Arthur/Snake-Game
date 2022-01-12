@@ -805,17 +805,17 @@ void snake_map::load_player_move(std::pair<int,int> head_pos,int food_type)
 unwall_map::unwall_map(int player_1,char * player1_skin,int player_2,char* player2_skin,int food_num,int speed,std::pair<int,int> map_size):snake_map(player_1,player1_skin,player_2,player2_skin,food_num,speed,map_size){
     print();
     if(player_1==0)
-    player1=new unwall_player_snake(this,1,"💠");
+    player1=new unwall_player_snake(this,1,player1_skin);
     else
-    player1=new unwall_computer_snake(this,1,"💠");
+    player1=new unwall_computer_snake(this,1,player1_skin);
 
 
     if(player_2==0)
     player2=nullptr;
     else if(player_2==1)
-    player2=new unwall_player_snake(this,2,"💓");
+    player2=new unwall_player_snake(this,2,player2_skin);
     else
-    player2=new unwall_computer_snake(this,2,"💓");
+    player2=new unwall_computer_snake(this,2,player2_skin);
 };
 
 
@@ -913,17 +913,17 @@ special_food_map::special_food_map(int player_1,char * player1_skin,int player_2
     random_food();
 
     if(player_1==0)
-    player1=new special_player_snake(this,1,"💠");
+    player1=new special_player_snake(this,1,player1_skin);
     else
-    player1=new special_computer_snake(this,1,"💠");
+    player1=new special_computer_snake(this,1,player1_skin);
 
 
     if(player_2==0)
     player2=nullptr;
     else if(player_2==1)
-    player2=new special_player_snake(this,2,"💓");
+    player2=new special_player_snake(this,2,player2_skin);
     else
-    player2=new special_computer_snake(this,2,"💓");
+    player2=new special_computer_snake(this,2,player2_skin);
 
 
 }
